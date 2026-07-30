@@ -13,6 +13,7 @@ export function SiteFooter() {
           <Link href="/">Directory</Link>
           <Link href="/categories">Categories</Link>
           <Link href="/submit">Submit</Link>
+          <Link href="/mcp">MCP</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/imprint">Imprint</Link>
