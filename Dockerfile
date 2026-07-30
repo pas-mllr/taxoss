@@ -31,8 +31,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     && dpkg -i /tmp/litestream.deb && rm /tmp/litestream.deb \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /data
+# Container Apps does not inject PORT (Cloud Run did); ingress targets 8080.
 ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
+    PORT=8080 \
     DATABASE_PATH=/data/app.db
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
