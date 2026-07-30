@@ -12,6 +12,7 @@ export function SiteFooter() {
         <nav className="footer-links">
           <Link href="/">Directory</Link>
           <Link href="/stack">Stack</Link>
+          <Link href="/insights">Insights</Link>
           <Link href="/submit">Submit</Link>
           <Link href="/mcp">MCP</Link>
           <Link href="/about">About</Link>

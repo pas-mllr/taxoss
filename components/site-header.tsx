@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/stack", label: "Stack" },
   { href: "/jurisdictions", label: "Jurisdictions" },
   { href: "/radar", label: "Radar" },
+  { href: "/insights", label: "Insights" },
   { href: "/about", label: "About" },
 ];
 
