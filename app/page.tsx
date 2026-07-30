@@ -101,23 +101,21 @@ export default async function HomePage({
 
   return (
     <div className="container">
-      <div className="dir-head">
-        <div>
-          <span className="eyebrow" style={{ marginBottom: 14 }}>
-            Directory
-          </span>
+      <div className="section-head">
+        <span className="eyebrow">Directory</span>
+        <div className="row">
           <h1 className="display-m">
             {activeCat ? activeCat.name : "Open Source Tax Software."}
           </h1>
-          <p className="dir-sub">
-            {activeCat?.blurb ??
-              "Every project is a real GitHub repository, stats refreshed from the source. One listing per repo, reviewed by the community, claimed by its maintainer."}
-          </p>
+          <span className="meta-mono">
+            {total} project{total !== 1 ? "s" : ""}
+            {activeCat ? "" : " indexed"}
+          </span>
         </div>
-        <span className="meta-mono">
-          {total} project{total !== 1 ? "s" : ""}
-          {activeCat ? "" : " indexed"}
-        </span>
+        <p className="body-l" style={{ maxWidth: 620 }}>
+          {activeCat?.blurb ??
+            "Every project is a real GitHub repository, stats refreshed from the source. One listing per repo, reviewed by the community, claimed by its maintainer."}
+        </p>
       </div>
 
       <FeaturedRotator items={featured} />
