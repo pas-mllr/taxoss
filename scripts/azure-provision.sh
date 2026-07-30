@@ -72,7 +72,7 @@ Provisioned. Next steps (manual):
      clerk-secret-key=sk_live_... gh-stats-token=github_pat_... \\
      admin-user-ids=user_... admin-api-token=... brevo-api-key=...
 
-2. GitHub Actions OIDC (repo pasmllr/taxoss):
+2. GitHub Actions OIDC (repo pas-mllr/taxoss):
    az ad app create --display-name taxoss-deploy
    az ad sp create --id <appId>
    az role assignment create --assignee <appId> --role Contributor \\
@@ -80,7 +80,7 @@ Provisioned. Next steps (manual):
    az ad app federated-credential create --id <appId> --parameters '{
      "name":"taxoss-main",
      "issuer":"https://token.actions.githubusercontent.com",
-     "subject":"repo:pasmllr/taxoss:ref:refs/heads/main",
+     "subject":"repo:pas-mllr/taxoss:ref:refs/heads/main",
      "audiences":["api://AzureADTokenExchange"]}'
    Then set GitHub secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID,
    AZURE_SUBSCRIPTION_ID, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,

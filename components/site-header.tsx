@@ -13,7 +13,7 @@ const LINKS = [
   { href: "/about", label: "About" },
 ];
 
-const REPO_URL = "https://github.com/pasmllr/taxoss";
+const REPO_URL = "https://github.com/pas-mllr/taxoss";
 
 export function SiteHeader({
   trackedStars,
