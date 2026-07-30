@@ -10,13 +10,13 @@ const CANONICAL_HOST = "tax-oss.com";
 const isProtectedRoute = createRouteMatcher(["/submit(.*)", "/account(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Production Clerk only trusts the apex origin; www and the run.app host
-  // would leave auth silently broken, so collapse them onto the canonical host.
+  // Production Clerk only trusts the apex origin; www and the Container Apps
+  // host would leave auth silently broken, so collapse them onto the canonical host.
   const host = req.headers.get("host") ?? "";
   if (
     process.env.NODE_ENV === "production" &&
     host !== CANONICAL_HOST &&
-    (host === `www.${CANONICAL_HOST}` || host.endsWith(".run.app"))
+    (host === `www.${CANONICAL_HOST}` || host.endsWith(".azurecontainerapps.io"))
   ) {
     const url = new URL(req.url);
     url.host = CANONICAL_HOST;
