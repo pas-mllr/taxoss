@@ -143,24 +143,36 @@ export default async function InsightsPage() {
                 {t.title}
               </h2>
             </div>
-            {t.paragraphs.map((p, j) => (
-              <p key={j} className="body" style={{ maxWidth: 680, marginBottom: 12 }}>
-                {p}
-              </p>
-            ))}
-            <div className="card" style={{ padding: "16px 20px", margin: "16px 0", maxWidth: 680 }}>
-              <span className="eyebrow" style={{ marginBottom: 8 }}>
-                Evidence from the index
-              </span>
-              <p className="mono" style={{ fontSize: 12.5, lineHeight: 1.6, margin: 0, color: "var(--ink-700)" }}>
-                {evidence[t.id]}
-              </p>
+            <div className="detail-grid" style={{ marginTop: 4 }}>
+              <div>
+                {t.paragraphs.map((p, j) => (
+                  <p key={j} className="body" style={{ marginBottom: 12 }}>
+                    {p}
+                  </p>
+                ))}
+              </div>
+              <div className="stack-8">
+                <div className="card" style={{ padding: "16px 20px" }}>
+                  <span className="eyebrow" style={{ marginBottom: 8 }}>
+                    Evidence from the index
+                  </span>
+                  <p className="mono" style={{ fontSize: 12.5, lineHeight: 1.6, margin: 0, color: "var(--ink-700)" }}>
+                    {evidence[t.id]}
+                  </p>
+                </div>
+                <div className="card" style={{ padding: "16px 20px" }}>
+                  <span className="eyebrow" style={{ marginBottom: 8 }}>
+                    Takeaways
+                  </span>
+                  {t.takeaways.map((tk) => (
+                    <p key={tk.audience} className="pc-desc" style={{ marginBottom: 10 }}>
+                      <strong style={{ color: "var(--ink-deep)" }}>{tk.audience}:</strong>{" "}
+                      {tk.text}
+                    </p>
+                  ))}
+                </div>
+              </div>
             </div>
-            {t.takeaways.map((tk) => (
-              <p key={tk.audience} className="body" style={{ maxWidth: 680, marginBottom: 8, fontSize: 13.5 }}>
-                <strong>{tk.audience}:</strong> {tk.text}
-              </p>
-            ))}
           </section>
         ))}
 
