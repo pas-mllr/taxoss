@@ -1,0 +1,21 @@
+name: Radar refresh
+
+# Harvests new GitHub releases into the radar daily. Azure Container Apps has
+# no cron of its own, so GitHub Actions plays scheduler.
+on:
+  schedule:
+    - cron: "20 5 * * *" # 05:20 UTC daily
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call refresh-radar endpoint
+        run: |
+          code=$(curl -s -o /tmp/out.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            --max-time 280 \
+            https://tax-oss.com/api/admin/refresh-radar)
+          cat /tmp/out.json
+          [ "$code" = "200" ] || exit 1

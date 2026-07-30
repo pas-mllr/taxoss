@@ -126,6 +126,23 @@ function ensureAdditiveColumns(sqlite: Database.Database) {
     FOREIGN KEY (project_id) REFERENCES projects(id) ON UPDATE no action ON DELETE cascade,
     FOREIGN KEY (facet_id) REFERENCES facets(id) ON UPDATE no action ON DELETE cascade
   )`);
+  sqlite.exec(`CREATE TABLE IF NOT EXISTS project_releases (
+    id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+    project_id integer NOT NULL,
+    tag text NOT NULL,
+    name text,
+    url text NOT NULL,
+    prerelease integer DEFAULT false NOT NULL,
+    published_at integer NOT NULL,
+    fetched_at integer DEFAULT (unixepoch()) NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON UPDATE no action ON DELETE cascade
+  )`);
+  sqlite.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS project_releases_project_tag_unique ON project_releases (project_id, tag)",
+  );
+  sqlite.exec(
+    "CREATE INDEX IF NOT EXISTS project_releases_published_idx ON project_releases (published_at)",
+  );
 }
 
 type Db = ReturnType<typeof createDb>;

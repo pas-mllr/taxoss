@@ -180,6 +180,32 @@ export const projectFacets = sqliteTable(
   (t) => [primaryKey({ columns: [t.projectId, t.facetId] })],
 );
 
+/**
+ * GitHub releases per project, harvested by the radar refresh endpoint.
+ * Powers the /radar "what's new" page; one row per (project, tag).
+ */
+export const projectReleases = sqliteTable(
+  "project_releases",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    tag: text("tag").notNull(),
+    name: text("name"),
+    url: text("url").notNull(),
+    prerelease: integer("prerelease", { mode: "boolean" }).notNull().default(false),
+    publishedAt: integer("published_at", { mode: "timestamp" }).notNull(),
+    fetchedAt: integer("fetched_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("project_releases_project_tag_unique").on(t.projectId, t.tag),
+    index("project_releases_published_idx").on(t.publishedAt),
+  ],
+);
+
 /** Site-level stars ("endorsements"), independent of GitHub stargazers. */
 export const stars = sqliteTable(
   "stars",
