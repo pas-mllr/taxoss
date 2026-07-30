@@ -11,7 +11,7 @@ export function SiteFooter() {
         <span className="footer-brand">TaxOSS</span>
         <nav className="footer-links">
           <Link href="/">Directory</Link>
-          <Link href="/categories">Categories</Link>
+          <Link href="/stack">Stack</Link>
           <Link href="/submit">Submit</Link>
           <Link href="/mcp">MCP</Link>
           <Link href="/about">About</Link>
