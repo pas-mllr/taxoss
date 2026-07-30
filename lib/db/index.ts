@@ -13,7 +13,7 @@ const DB_PATH =
   process.env.DATABASE_PATH ?? path.join(process.cwd(), "data", "app.db");
 
 declare global {
-  var __legalossDb: ReturnType<typeof createDb> | undefined;
+  var __taxossDb: ReturnType<typeof createDb> | undefined;
 }
 
 function createDb() {
@@ -139,7 +139,7 @@ async function seedStarters(database: Db) {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "legaloss",
+    "User-Agent": "taxoss",
   };
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
@@ -211,7 +211,7 @@ async function seedStarters(database: Db) {
 }
 
 // Reuse the connection across dev hot reloads.
-export const db = globalThis.__legalossDb ?? createDb();
-if (process.env.NODE_ENV !== "production") globalThis.__legalossDb = db;
+export const db = globalThis.__taxossDb ?? createDb();
+if (process.env.NODE_ENV !== "production") globalThis.__taxossDb = db;
 
 export * as tables from "./schema";

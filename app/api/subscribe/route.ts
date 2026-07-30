@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 /**
- * Newsletter signup: adds the address to the LegalOSS list in Brevo. Issues
+ * Newsletter signup: adds the address to the TaxOSS list in Brevo. Issues
  * go out when new projects are featured (see scripts/send-newsletter.ts).
  * Requires BREVO_API_KEY and BREVO_LIST_ID; without them the endpoint reports
  * itself unconfigured instead of failing silently.

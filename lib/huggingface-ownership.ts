@@ -45,7 +45,7 @@ export async function verifyHfOwnership(
   if (!token) return { owned: false, reason: "no-hf-connection" };
 
   const res = await fetch(WHOAMI, {
-    headers: { Authorization: `Bearer ${token}`, "User-Agent": "legaloss" },
+    headers: { Authorization: `Bearer ${token}`, "User-Agent": "taxoss" },
     cache: "no-store",
   });
   if (res.status === 401) return { owned: false, reason: "token-revoked" };

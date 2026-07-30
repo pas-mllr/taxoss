@@ -1,7 +1,12 @@
-# LegalOSS
+# TaxOSS
 
-A community index of open-source legal software, live at
-[legal-oss.com](https://legal-oss.com).
+A community index of open-source tax software, live at
+[tax-oss.com](https://tax-oss.com).
+
+TaxOSS is a fork of the MIT-licensed
+[LegalOSS](https://github.com/eigenweltlabs/legaloss) by
+[Eigenwelt Labs](https://eigenweltlabs.com), rebranded and re-scoped for the
+tax software ecosystem.
 
 ## Rules of the index
 
@@ -14,7 +19,7 @@ A community index of open-source legal software, live at
    numeric owner-ID fallback for personal repos); Hugging Face claims match the
    whoami-v2 identity or an organization role. Maintainers who would rather
    grant no OAuth scope at all can instead publish a per-person token in
-   `legaloss-verify.txt` (or the README), which is read back anonymously — the
+   `taxoss-verify.txt` (or the README), which is read back anonymously — the
    only route that works for Hugging Face organizations without also granting
    `read-repos` over private repositories. Only the verified claimant can edit a
    project's name, tagline, website, categories, and maintainer's note.
@@ -30,4 +35,5 @@ See [SETUP.md](./SETUP.md).
 
 MIT — see [LICENSE](./LICENSE).
 
-Made by [Eigenwelt Labs](https://eigenweltlabs.com).
+Based on [LegalOSS](https://github.com/eigenweltlabs/legaloss) by
+[Eigenwelt Labs](https://eigenweltlabs.com).

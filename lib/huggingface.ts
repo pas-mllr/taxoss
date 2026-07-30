@@ -44,7 +44,7 @@ export async function isHfOrganization(name: string): Promise<boolean> {
     const res = await fetch(
       `${HF_API}/organizations/${encodeURIComponent(name)}/overview`,
       {
-        headers: { "User-Agent": "legaloss" },
+        headers: { "User-Agent": "taxoss" },
         next: { revalidate: 60 * 60 * 24 },
       },
     );
@@ -132,7 +132,7 @@ export async function fetchHfRepo(
 ): Promise<{ data: HfRepoData; error?: never } | { data?: never; error: HfError }> {
   const res = await fetch(
     `${HF_API}/${TYPE_META[type].api}/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
-    { headers: { "User-Agent": "legaloss" }, cache: "no-store" },
+    { headers: { "User-Agent": "taxoss" }, cache: "no-store" },
   );
   if (!res.ok) {
     const message =
@@ -181,7 +181,7 @@ export async function fetchHfReadmeHtml(
 ): Promise<string | null> {
   const rawRes = await fetch(
     `${HF}/${TYPE_META[type].urlPrefix}${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/raw/main/README.md`,
-    { headers: { "User-Agent": "legaloss" }, cache: "no-store" },
+    { headers: { "User-Agent": "taxoss" }, cache: "no-store" },
   );
   if (!rawRes.ok) return null;
   let md = await rawRes.text();
@@ -191,7 +191,7 @@ export async function fetchHfReadmeHtml(
   const ghHeaders: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "legaloss",
+    "User-Agent": "taxoss",
     "Content-Type": "application/json",
   };
   if (process.env.GITHUB_TOKEN) {

@@ -2,7 +2,7 @@
  * Sends the featured-projects newsletter from THIS machine's database. For
  * production sends prefer the admin route, which reads prod data directly:
  *
- *   curl -X POST https://legal-oss.com/api/admin/newsletter \
+ *   curl -X POST https://tax-oss.com/api/admin/newsletter \
  *     -H "Authorization: Bearer $ADMIN_API_TOKEN" \
  *     -H "Content-Type: application/json" -d '{"dryRun": true}'   # then {}
  *
@@ -18,7 +18,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { buildIssue, sendCampaign, type IssueProject } from "../lib/newsletter";
 import * as schema from "../lib/db/schema";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://legal-oss.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tax-oss.com";
 const DRY_RUN = process.argv.includes("--dry-run");
 const apiKey = process.env.BREVO_API_KEY;
 const listId = Number(process.env.BREVO_LIST_ID);

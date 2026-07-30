@@ -24,10 +24,10 @@ export default async function CategoriesPage() {
     <div className="container">
       <div className="section-head">
         <span className="eyebrow">Categories</span>
-        <h1 className="display-m">The shape of legal open source.</h1>
+        <h1 className="display-m">The shape of tax open source.</h1>
         <p className="body-l" style={{ maxWidth: 620 }}>
-          Twenty practice-grounded categories, from running a firm to serving
-          statutes over MCP. Every project carries one to four.
+          Twenty practice-grounded categories, from filing returns to serving
+          tax rules over MCP. Every project carries one to four.
         </p>
       </div>
       <div className="project-grid">

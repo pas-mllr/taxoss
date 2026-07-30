@@ -13,7 +13,7 @@ const LINKS = [
   { href: "/about", label: "About" },
 ];
 
-const REPO_URL = "https://github.com/eigenweltlabs/legaloss";
+const REPO_URL = "https://github.com/pasmllr/taxoss";
 
 export function SiteHeader({
   trackedStars,
@@ -46,7 +46,7 @@ export function SiteHeader({
       <header className="topbar">
         <div className="container topbar-inner">
           <Link href="/" className="topbar-brand">
-            LegalOSS
+            TaxOSS
           </Link>
           <nav className="topbar-links">
             {LINKS.map((l) => (
@@ -90,7 +90,7 @@ export function SiteHeader({
               target="_blank"
               rel="noreferrer"
               className="topbar-gh"
-              aria-label="LegalOSS on GitHub"
+              aria-label="TaxOSS on GitHub"
               title="View the source on GitHub"
             >
               <IconGitHub />

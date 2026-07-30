@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const url = `${SITE_URL}${projectHref(project)}`;
 
   return {
-    title: `${project.name} — open-source legal ${hfTypeLabel(project.sourceType).toLowerCase()}`,
+    title: `${project.name} — open-source tax ${hfTypeLabel(project.sourceType).toLowerCase()}`,
     description,
     alternates: { canonical: url },
     openGraph: { title: project.name, description, url, siteName: SITE_NAME, type: "website" },

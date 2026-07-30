@@ -93,7 +93,7 @@ export default async function MyProjectsPage({
           <h1 className="display-m">My projects.</h1>
           <p className="dir-sub">
             {tab === "maintained"
-              ? "The projects you maintain on LegalOSS — claimed by you, or granted to your GitHub account by a claimant. Nobody else sees this page."
+              ? "The projects you maintain on TaxOSS — claimed by you, or granted to your GitHub account by a claimant. Nobody else sees this page."
               : "Everything you have starred, most recent first. Stars are yours alone — they are separate from the project's GitHub stargazers, and nobody else sees this page."}
           </p>
         </div>

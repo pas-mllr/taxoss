@@ -1,5 +1,5 @@
 /*
- * Optional starter content: indexes a curated list of real legal OSS repos
+ * Optional starter content: indexes a curated list of real tax OSS repos
  * via the live GitHub API (no mock data — skips loudly on API failure).
  * Idempotent: already-indexed repos are skipped. Run with `pnpm db:seed-projects`.
  */
@@ -11,14 +11,18 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "../lib/db/schema";
 
 const STARTERS: { repo: string; categories: string[] }[] = [
-  { repo: "freelawproject/courtlistener", categories: ["court-data", "legal-research"] },
-  { repo: "freelawproject/eyecite", categories: ["citations"] },
-  { repo: "freelawproject/juriscraper", categories: ["court-data", "citations"] },
-  { repo: "jhpyle/docassemble", categories: ["document-automation", "access-to-justice"] },
-  { repo: "docusealco/docuseal", categories: ["esignature", "document-automation"] },
-  { repo: "TheAtticusProject/cuad", categories: ["contracts", "benchmarks-datasets"] },
-  { repo: "HazyResearch/legalbench", categories: ["benchmarks-datasets", "legal-ai"] },
-  { repo: "nlmatics/nlm-ingestor", categories: ["legal-ai", "contracts"] },
+  { repo: "PolicyEngine/policyengine-us", categories: ["policy-microsim", "rules-as-code"] },
+  { repo: "PSLmodels/Tax-Calculator", categories: ["policy-microsim", "tax-engines"] },
+  { repo: "openfisca/openfisca-core", categories: ["rules-as-code", "policy-microsim"] },
+  { repo: "openfisca/openfisca-france", categories: ["rules-as-code"] },
+  { repo: "ustaxes/UsTaxes", categories: ["tax-prep-filing"] },
+  { repo: "CatalaLang/catala", categories: ["rules-as-code"] },
+  { repo: "ZUGFeRD/mustangproject", categories: ["invoicing"] },
+  { repo: "invoiceninja/invoiceninja", categories: ["invoicing", "accounting"] },
+  { repo: "arthurdejong/python-stdnum", categories: ["vat-gst"] },
+  { repo: "rotki/rotki", categories: ["crypto-gains", "accounting"] },
+  { repo: "BittyTax/BittyTax", categories: ["crypto-gains", "tax-prep-filing"] },
+  { repo: "frappe/erpnext", categories: ["accounting"] },
 ];
 
 const DB_PATH =
@@ -32,7 +36,7 @@ async function fetchRepo(owner: string, repo: string) {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "legaloss-seed",
+    "User-Agent": "taxoss-seed",
   };
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;

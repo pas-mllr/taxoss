@@ -1,4 +1,4 @@
-# Setup (LegalOSS)
+# Setup (TaxOSS)
 
 ## Local dev (works out of the box)
 
@@ -39,7 +39,7 @@ keyless mode.
    `.env.local` and as a GitHub Actions secret. Absent key = analytics off.
 6. **Brevo newsletter** — run `BREVO_API_KEY=… pnpm newsletter:setup` once (from
    a network allowed under Brevo → Security → Authorised IPs); it creates the
-   "LegalOSS" list and prints `BREVO_LIST_ID`. Set both as env vars locally and
+   "TaxOSS" list and prints `BREVO_LIST_ID`. Set both as env vars locally and
    as GitHub Actions secrets. Issues go out with `pnpm newsletter:send`
    (`--dry-run` to preview) against the production `DATABASE_PATH`.
 7. **Site admins** — set `ADMIN_USER_IDS` (comma-separated Clerk user ids)
@@ -50,13 +50,13 @@ keyless mode.
    GitHub Actions secret), then POST the curated repo list — kept outside the
    repo on purpose — to `/api/admin/index-repos` with the Bearer token
    (idempotent; already-indexed repos come back as `exists`):
-   `curl -X POST https://legal-oss.com/api/admin/index-repos -H "Authorization: Bearer $ADMIN_API_TOKEN" -H "Content-Type: application/json" -d '{"repos":[{"repo":"owner/name","categories":["platforms"],"tagline":"Short blurb"}]}'`
+   `curl -X POST https://tax-oss.com/api/admin/index-repos -H "Authorization: Bearer $ADMIN_API_TOKEN" -H "Content-Type: application/json" -d '{"repos":[{"repo":"owner/name","categories":["platforms"],"tagline":"Short blurb"}]}'`
 9. **Manual claim grants** — the break-glass path when a maintainer proves
    control out of band and neither self-serve route fits. Same Bearer token;
    identify the person by `userId` or `email` (they must have signed in at
    least once). Refuses to take a project from an existing claimant unless
    `"force": true`, and every grant is logged in `claims` as `admin-grant`:
-   `curl -X POST https://legal-oss.com/api/admin/claims -H "Authorization: Bearer $ADMIN_API_TOKEN" -H "Content-Type: application/json" -d '{"grants":[{"repo":"owner/name","email":"maintainer@firm.com"}]}'`
+   `curl -X POST https://tax-oss.com/api/admin/claims -H "Authorization: Bearer $ADMIN_API_TOKEN" -H "Content-Type: application/json" -d '{"grants":[{"repo":"owner/name","email":"maintainer@firm.com"}]}'`
    Undo with `curl -X DELETE .../api/admin/claims -d '{"repos":["owner/name"]}'`.
 
 ## Verification status (last local QA)

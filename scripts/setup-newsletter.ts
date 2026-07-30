@@ -1,5 +1,5 @@
 /*
- * One-time Brevo setup: creates the "LegalOSS" contact list and prints the id
+ * One-time Brevo setup: creates the "TaxOSS" contact list and prints the id
  * to put into BREVO_LIST_ID. Idempotent: reuses the list if it already exists.
  *
  *   BREVO_API_KEY=xkeysib-… pnpm newsletter:setup
@@ -8,7 +8,7 @@
  * allowed network or add yours at https://app.brevo.com/security/authorised_ips
  */
 const API = "https://api.brevo.com/v3";
-const LIST_NAME = "LegalOSS";
+const LIST_NAME = "TaxOSS";
 
 const apiKey = process.env.BREVO_API_KEY;
 if (!apiKey) {

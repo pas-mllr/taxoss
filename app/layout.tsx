@@ -46,24 +46,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "LegalOSS · Open Source Legal Software",
-    template: "%s · LegalOSS",
+    default: "TaxOSS · Open Source Tax Software",
+    template: "%s · TaxOSS",
   },
   description:
-    "A community index of open-source legal software. Live GitHub stats, community reviews, maintainer-claimed pages.",
+    "A community index of open-source tax software. Live GitHub stats, community reviews, maintainer-claimed pages.",
   openGraph: {
     siteName: SITE_NAME,
     type: "website",
     url: SITE_URL,
-    title: "LegalOSS · Open Source Legal Software",
+    title: "TaxOSS · Open Source Tax Software",
     description:
-      "A community index of open-source legal software. Live GitHub stats, community reviews, maintainer-claimed pages.",
+      "A community index of open-source tax software. Live GitHub stats, community reviews, maintainer-claimed pages.",
   },
   twitter: {
     card: "summary",
-    title: "LegalOSS · Open Source Legal Software",
+    title: "TaxOSS · Open Source Tax Software",
     description:
-      "A community index of open-source legal software. Live GitHub stats, community reviews, maintainer-claimed pages.",
+      "A community index of open-source tax software. Live GitHub stats, community reviews, maintainer-claimed pages.",
   },
 };
 

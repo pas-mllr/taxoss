@@ -15,7 +15,7 @@ export default function AboutPage() {
           <h1 className="display-m">How this works.</h1>
         </div>
         <p className="body-l">
-          LegalOSS is a small index of open-source legal software. Every entry
+          TaxOSS is a small index of open-source tax software. Every entry
           is a real GitHub repository, its stats come straight from GitHub, and
           each repository can be listed exactly once. Browsing needs no
           account.
@@ -59,7 +59,7 @@ export default function AboutPage() {
             </li>
             <li>
               Commit it to a file called{" "}
-              <span className="mono">legaloss-verify.txt</span> at the root of
+              <span className="mono">taxoss-verify.txt</span> at the root of
               the repository, on the default branch. Pasting the same line
               anywhere in the README works just as well.
             </li>
@@ -79,8 +79,8 @@ export default function AboutPage() {
           <p className="body">
             If neither route fits — a protected default branch, an organization
             that blocks OAuth apps, a handover between maintainers — email{" "}
-            <a href="mailto:chris@eigenweltlabs.com" className="accent">
-              chris@eigenweltlabs.com
+            <a href="mailto:pascal@lurn.digital" className="accent">
+              pascal@lurn.digital
             </a>{" "}
             and we&apos;ll verify it by hand.
           </p>
@@ -96,7 +96,7 @@ export default function AboutPage() {
           <h3 style={{ fontSize: 16 }}>Stay in the loop</h3>
           <p className="body">
             Every few weeks we send one email listing the newly featured
-            open-source legal projects. No noise, unsubscribe any time.
+            open-source tax projects. No noise, unsubscribe any time.
           </p>
           <NewsletterForm />
         </div>

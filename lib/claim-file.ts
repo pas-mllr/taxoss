@@ -18,7 +18,7 @@ import { hfRepoUrl, type HfType } from "@/lib/huggingface";
  */
 
 /** Filename maintainers commit at the repository root. */
-export const CLAIM_FILE_NAME = "legaloss-verify.txt";
+export const CLAIM_FILE_NAME = "taxoss-verify.txt";
 
 /** Refuse to scan bodies larger than this; a proof line is never big. */
 const MAX_BODY_BYTES = 1_000_000;
@@ -34,7 +34,7 @@ function signingKey(): string {
   return (
     process.env.CLAIM_VERIFY_SECRET ??
     process.env.CLERK_SECRET_KEY ??
-    "legaloss-development-claim-secret"
+    "taxoss-development-claim-secret"
   );
 }
 
@@ -48,7 +48,7 @@ export function claimToken(projectId: number, userId: string): string {
     .update(`claim:${projectId}:${userId}`)
     .digest("hex")
     .slice(0, 40);
-  return `legaloss-verify-${mac}`;
+  return `taxoss-verify-${mac}`;
 }
 
 export type FileVerification =
@@ -69,7 +69,7 @@ async function fetchText(url: string): Promise<Fetched> {
   let res: Response;
   try {
     res = await fetch(url, {
-      headers: { "User-Agent": "legaloss" },
+      headers: { "User-Agent": "taxoss" },
       cache: "no-store",
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });

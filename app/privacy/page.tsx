@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: "How LegalOSS handles analytics, accounts, and newsletter data.",
+  description: "How TaxOSS handles analytics, accounts, and newsletter data.",
 };
 
 export default function PrivacyPage() {
@@ -16,8 +16,7 @@ export default function PrivacyPage() {
           <span className="eyebrow">Privacy</span>
           <h1 className="display-m">What we collect, plainly.</h1>
           <p className="body-l">
-            LegalOSS is operated by Poensgen Technology UG
-            (haftungsbeschränkt), Berlin — see the{" "}
+            TaxOSS is operated by Lurn Digital, Netherlands — see the{" "}
             <Link href="/imprint" className="accent">
               imprint
             </Link>
@@ -75,9 +74,9 @@ export default function PrivacyPage() {
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Hosting</h3>
           <p className="body">
-            The site runs on Google Cloud Run in europe-west1 (Belgium).
-            Standard server logs (IP address, request path, timestamp) exist
-            briefly for operations and abuse prevention.
+            The site runs on Microsoft Azure in the West Europe region
+            (Netherlands). Standard server logs (IP address, request path,
+            timestamp) exist briefly for operations and abuse prevention.
           </p>
         </div>
 
@@ -87,12 +86,12 @@ export default function PrivacyPage() {
             Under the GDPR you can request access, correction, deletion, and
             portability of your data, and you can object to processing. Write
             to{" "}
-            <a href="mailto:chris@eigenweltlabs.com" className="accent">
-              chris@eigenweltlabs.com
+            <a href="mailto:pascal@lurn.digital" className="accent">
+              pascal@lurn.digital
             </a>{" "}
             and we&apos;ll sort it out. You can also complain to a supervisory
-            authority; for Berlin that is the Berliner Beauftragte für
-            Datenschutz und Informationsfreiheit.
+            authority; for the Netherlands that is the Autoriteit
+            Persoonsgegevens.
           </p>
         </div>
       </div>

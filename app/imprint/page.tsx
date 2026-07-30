@@ -4,78 +4,85 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Imprint",
-  description: "Legal imprint for LegalOSS.",
+  description: "Site information for TaxOSS.",
 };
 
+// TODO(owner): replace the placeholder address and KVK number below with the
+// real business details before going live.
 export default function ImprintPage() {
   return (
     <div className="container">
       <div className="narrow stack-24 prose">
         <div className="section-head">
-          <span className="eyebrow">§ 5 DDG</span>
+          <span className="eyebrow">Site information</span>
           <h1 className="display-m">Imprint.</h1>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Operator</h3>
-          <p className="body">Poensgen Technology UG (haftungsbeschränkt)</p>
-          <p className="body">Wiclefstr. 45</p>
-          <p className="body">10551 Berlin, Germany</p>
-        </div>
-
-        <div className="stack-8">
-          <h3 style={{ fontSize: 15 }}>Management</h3>
-          <p className="body">
-            The company is currently managed by one managing director.
-          </p>
+          <p className="body">Lurn Digital</p>
+          <p className="body">[Street address]</p>
+          <p className="body">[Postal code, City], Netherlands</p>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Contact</h3>
           <p className="body">
             E-Mail:{" "}
-            <a href="mailto:chris@eigenweltlabs.com" className="accent">
-              chris@eigenweltlabs.com
+            <a href="mailto:pascal@lurn.digital" className="accent">
+              pascal@lurn.digital
             </a>
           </p>
         </div>
 
         <div className="stack-8">
-          <h3 style={{ fontSize: 15 }}>Commercial register</h3>
+          <h3 style={{ fontSize: 15 }}>Business register</h3>
           <p className="body">
-            Registry court: Amtsgericht Berlin (Charlottenburg), 14057 Berlin
+            Registered with the Dutch Chamber of Commerce (KVK)
           </p>
-          <p className="body">Commercial register number: HRB 226111 B</p>
-          <p className="body">
-            Legal form: Unternehmergesellschaft (haftungsbeschränkt)
-          </p>
+          <p className="body">KVK number: [00000000]</p>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Editorial responsibility</h3>
-          <p className="body">Poensgen Technology UG (haftungsbeschränkt)</p>
-          <p className="body">Wiclefstr. 45</p>
-          <p className="body">10551 Berlin, Germany</p>
+          <p className="body">Lurn Digital</p>
+          <p className="body">[Street address]</p>
+          <p className="body">[Postal code, City], Netherlands</p>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Liability for content</h3>
           <p className="body">
-            As a service provider, we are responsible for our own content on
-            these pages under the general laws. Under sections 8 to 10 DDG, we
-            are not obligated to monitor transmitted or stored third-party
-            information or to investigate circumstances that indicate illegal
-            activity.
+            We take care to keep the information on this site accurate, but the
+            index aggregates public data from third-party sources and we cannot
+            guarantee its completeness or timeliness. Nothing on this site is
+            tax advice.
           </p>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Liability for links</h3>
           <p className="body">
-            This website may contain links to external third-party websites,
-            the contents of which we have no influence on. The respective
-            provider or operator of the linked pages is responsible for their
-            content.
+            This website links to external third-party websites and
+            repositories, the contents of which we have no influence on. The
+            respective provider or operator of the linked pages is responsible
+            for their content.
+          </p>
+        </div>
+
+        <div className="stack-8">
+          <h3 style={{ fontSize: 15 }}>Attribution</h3>
+          <p className="body">
+            TaxOSS is built on the MIT-licensed{" "}
+            <a
+              href="https://github.com/eigenweltlabs/legaloss"
+              className="accent"
+              target="_blank"
+              rel="noreferrer"
+            >
+              LegalOSS
+            </a>{" "}
+            codebase by Eigenwelt Labs.
           </p>
         </div>
       </div>

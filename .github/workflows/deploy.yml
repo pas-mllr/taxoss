@@ -10,10 +10,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PROJECT: eigenweltlabs-training
-  REGION: europe-west1
-  SERVICE: legaloss
-  IMAGE: europe-west1-docker.pkg.dev/eigenweltlabs-training/legaloss/app
+  # Azure resources — created once via scripts/azure-provision.sh.
+  RESOURCE_GROUP: taxoss-rg
+  ACR_NAME: taxossacr
+  CONTAINERAPP: taxoss
+  IMAGE_REPO: taxoss/app
 
 jobs:
   deploy:
@@ -24,38 +25,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - id: auth
-        uses: google-github-actions/auth@v2
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
         with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure docker for Artifact Registry
-        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-
-      - name: Build image
+      - name: Build and push image (ACR remote build)
         run: |
-          docker build \
+          az acr build \
+            --registry "$ACR_NAME" \
+            --image "$IMAGE_REPO:${{ github.sha }}" \
             --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" \
             --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
             --build-arg NEXT_PUBLIC_POSTHOG_HOST="https://eu.i.posthog.com" \
-            -t "$IMAGE:${{ github.sha }}" .
+            .
 
-      - name: Push image
-        run: docker push "$IMAGE:${{ github.sha }}"
-
-      - name: Deploy to Cloud Run
+      - name: Deploy to Azure Container Apps
         run: |
-          gcloud run deploy "$SERVICE" \
-            --project "$PROJECT" \
-            --region "$REGION" \
-            --image "$IMAGE:${{ github.sha }}" \
-            --no-invoker-iam-check \
-            --min-instances 0 \
-            --max-instances 1 \
-            --memory 512Mi \
-            --service-account legaloss-run@eigenweltlabs-training.iam.gserviceaccount.com \
-            --set-env-vars "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }},NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in,NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up,LITESTREAM_BUCKET=eigenweltlabs-training-legaloss-db,SEED_STARTERS=0,ADMIN_USER_IDS=${{ secrets.ADMIN_USER_IDS }},ADMIN_API_TOKEN=${{ secrets.ADMIN_API_TOKEN }},BREVO_API_KEY=${{ secrets.BREVO_API_KEY }},BREVO_LIST_ID=${{ secrets.BREVO_LIST_ID }}" \
-            --set-secrets "CLERK_SECRET_KEY=legaloss-clerk-secret-key:latest,GITHUB_TOKEN=legaloss-github-token:latest"
+          az containerapp update \
+            --name "$CONTAINERAPP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --image "$ACR_NAME.azurecr.io/$IMAGE_REPO:${{ github.sha }}" \
+            --set-env-vars \
+              "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" \
+              "NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in" \
+              "NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up" \
+              "SEED_STARTERS=0" \
+              "LITESTREAM_BUCKET=taxoss-db" \
+              "AZURE_STORAGE_ACCOUNT=taxossdb" \
+              "AZURE_STORAGE_KEY=secretref:azure-storage-key" \
+              "CLERK_SECRET_KEY=secretref:clerk-secret-key" \
+              "GITHUB_TOKEN=secretref:gh-stats-token" \
+              "ADMIN_USER_IDS=secretref:admin-user-ids" \
+              "ADMIN_API_TOKEN=secretref:admin-api-token" \
+              "BREVO_API_KEY=secretref:brevo-api-key" \
+              "BREVO_LIST_ID=${{ secrets.BREVO_LIST_ID }}"

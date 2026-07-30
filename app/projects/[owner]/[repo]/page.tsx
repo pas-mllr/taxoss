@@ -56,11 +56,11 @@ export async function generateMetadata({
   const description =
     project.tagline ??
     stats?.description ??
-    `${project.owner}/${project.repo} on ${SITE_NAME}, the community index of open-source legal software.`;
+    `${project.owner}/${project.repo} on ${SITE_NAME}, the community index of open-source tax software.`;
   const url = `${SITE_URL}/projects/${project.owner}/${project.repo}`;
 
   return {
-    title: `${project.name} — open-source legal software`,
+    title: `${project.name} — open-source tax software`,
     description,
     alternates: { canonical: url },
     openGraph: {

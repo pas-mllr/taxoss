@@ -8,7 +8,7 @@ export function SiteFooter() {
         <NewsletterForm />
       </div>
       <div className="container footer-inner">
-        <span className="footer-brand">LegalOSS</span>
+        <span className="footer-brand">TaxOSS</span>
         <nav className="footer-links">
           <Link href="/">Directory</Link>
           <Link href="/categories">Categories</Link>
@@ -18,9 +18,9 @@ export function SiteFooter() {
           <Link href="/imprint">Imprint</Link>
         </nav>
         <span className="footer-credit">
-          © {new Date().getFullYear()} · Built in Berlin by{" "}
-          <a href="https://eigenweltlabs.com" target="_blank" rel="noreferrer">
-            Eigenwelt Labs
+          © {new Date().getFullYear()} · Built by{" "}
+          <a href="https://lurn.digital" target="_blank" rel="noreferrer">
+            Lurn Digital
           </a>
         </span>
       </div>

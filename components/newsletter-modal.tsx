@@ -56,9 +56,9 @@ export function NewsletterModal() {
         ×
       </button>
       <span className="eyebrow">Newsletter</span>
-      <h4 className="nl-modal-title">New legal OSS, every few weeks.</h4>
+      <h4 className="nl-modal-title">New tax OSS, every few weeks.</h4>
       <p className="nl-modal-body">
-        One email with the newly featured open-source legal projects. No noise,
+        One email with the newly featured open-source tax projects. No noise,
         unsubscribe any time.
       </p>
       <NewsletterForm />

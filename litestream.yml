@@ -1,6 +1,8 @@
 dbs:
   - path: ${DATABASE_PATH}
     replicas:
-      - type: gcs
+      - type: abs
+        account-name: ${AZURE_STORAGE_ACCOUNT}
+        account-key: ${AZURE_STORAGE_KEY}
         bucket: ${LITESTREAM_BUCKET}
-        path: legaloss/app.db
+        path: taxoss/app.db
