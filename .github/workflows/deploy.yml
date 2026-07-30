@@ -42,6 +42,11 @@ jobs:
             --build-arg NEXT_PUBLIC_POSTHOG_HOST="https://eu.i.posthog.com" \
             .
 
+      # TODO: once the gh-stats-token ACA secret holds a real fine-grained PAT,
+      # re-add "GITHUB_TOKEN=secretref:gh-stats-token" below — a placeholder
+      # value would 401 every GitHub API call, unauthenticated at least works.
+      # SEED_STARTERS=1 is idempotent: the starter seed exits early once any
+      # project exists, so it only ever populates a brand-new database.
       - name: Deploy to Azure Container Apps
         run: |
           az containerapp update \
@@ -52,12 +57,11 @@ jobs:
               "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" \
               "NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in" \
               "NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up" \
-              "SEED_STARTERS=0" \
+              "SEED_STARTERS=1" \
               "LITESTREAM_BUCKET=taxoss-db" \
               "AZURE_STORAGE_ACCOUNT=taxossdb" \
               "AZURE_STORAGE_KEY=secretref:azure-storage-key" \
               "CLERK_SECRET_KEY=secretref:clerk-secret-key" \
-              "GITHUB_TOKEN=secretref:gh-stats-token" \
               "ADMIN_USER_IDS=secretref:admin-user-ids" \
               "ADMIN_API_TOKEN=secretref:admin-api-token" \
               "BREVO_API_KEY=secretref:brevo-api-key" \
