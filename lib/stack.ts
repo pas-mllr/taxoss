@@ -144,6 +144,49 @@ export const MANDATES: Mandate[] = [
 
 export type EvalPoint = { title: string; body: string };
 
+export type Milestone = {
+  /** Jurisdiction facet slug — links to /jurisdictions/[slug]. */
+  jur: string;
+  jurLabel: string;
+  /** ISO date of the obligation taking effect; the Radar counts down to it. */
+  date: string;
+  label: string;
+};
+
+/** Dated obligations ahead — feeds the Radar countdown. Reviewed 2026-07. */
+export const MILESTONES: Milestone[] = [
+  {
+    jur: "fr",
+    jurLabel: "France",
+    date: "2026-09-01",
+    label: "E-invoicing: every business must be able to receive structured invoices; large ones must issue.",
+  },
+  {
+    jur: "de",
+    jurLabel: "Germany",
+    date: "2027-01-01",
+    label: "E-Rechnung: issuing structured B2B invoices becomes mandatory for turnover above €800k.",
+  },
+  {
+    jur: "br",
+    jurLabel: "Brazil",
+    date: "2027-01-01",
+    label: "CBS reaches its full rate — the consumption-tax reform leaves the pilot phase.",
+  },
+  {
+    jur: "uk",
+    jurLabel: "United Kingdom",
+    date: "2027-04-06",
+    label: "MTD for Income Tax extends to self-employment and property income over £30k.",
+  },
+  {
+    jur: "eu",
+    jurLabel: "European Union",
+    date: "2030-07-01",
+    label: "ViDA: digital reporting and e-invoicing for cross-border B2B across the union.",
+  },
+];
+
 /** The four questions to ask before adopting any tool in the index. */
 export const EVAL_POINTS: EvalPoint[] = [
   {
