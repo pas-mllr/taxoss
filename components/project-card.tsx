@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ProjectListItem } from "@/lib/projects";
 import { formatCount, timeAgo } from "@/lib/format";
+import { projectHealth } from "@/lib/health";
 import { projectHref } from "@/lib/sources";
 import { CardStar } from "@/components/card-star";
 import {
@@ -22,6 +23,7 @@ export function ProjectCard({
 }) {
   const desc = project.tagline ?? project.description;
   const isHf = project.source === "huggingface";
+  const health = project.archived ? null : projectHealth(project.pushedAt);
   return (
     <div className="card card-hover project-card">
       <div className="pc-cat">
@@ -36,18 +38,29 @@ export function ProjectCard({
         {/* Status reads the same whatever the repo is hosted on. Hugging Face
             projects used to spend this slot on a type label and so could never
             show that they were maintained. */}
-        {project.claimedById ? (
-          <span
-            className="claimed-check"
-            role="img"
-            aria-label="Claimed"
-            title="Claimed"
-          >
-            <IconCheck />
-          </span>
-        ) : project.archived ? (
-          <span className="status-pill is-archived">Archived</span>
-        ) : null}
+        <span className="pc-status">
+          {project.claimedById ? (
+            <span
+              className="claimed-check"
+              role="img"
+              aria-label="Claimed"
+              title="Claimed"
+            >
+              <IconCheck />
+            </span>
+          ) : null}
+          {project.archived ? (
+            <span className="status-pill is-archived">Archived</span>
+          ) : health ? (
+            <span
+              className={`status-pill is-health-${health.key}`}
+              title={health.title}
+            >
+              <span className="dot" />
+              {health.label}
+            </span>
+          ) : null}
+        </span>
       </div>
       <div className="pc-top">
         <div style={{ minWidth: 0 }}>

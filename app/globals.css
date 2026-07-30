@@ -464,6 +464,15 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 .status-pill.is-hf { background: var(--butter); color: var(--ink-on-accent); }
 .status-pill.is-hf svg { width: 12px; height: 12px; }
 
+/* Maintenance health, banded from the last push. Tax tools ship on annual
+   cycles, so only Quiet/Stale carry alarm colors; Active is a calm green and
+   Maintained is deliberately mute — absence of worry, not a badge of honor. */
+.status-pill.is-health-active { background: var(--forest-200); color: var(--forest); }
+.status-pill.is-health-maintained { background: var(--cream-deep); color: var(--ink-500); }
+.status-pill.is-health-quiet { background: var(--warning-soft); color: var(--warning); }
+.status-pill.is-health-stale { background: var(--danger-soft); color: var(--danger); }
+.pc-status { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
 /* Compact claimed marker on project cards — the full "Maintained" pill was
    too loud there; the tooltip carries the wording. */
 .claimed-check {
