@@ -5,7 +5,6 @@ import { db } from "@/lib/db";
 import { categories, facets } from "@/lib/db/schema";
 import {
   listFeaturedProjects,
-  listFilterOptions,
   listProjects,
   type SortKey,
 } from "@/lib/projects";
@@ -14,7 +13,6 @@ import { BrowseControls } from "@/components/browse-controls";
 import { Pagination } from "@/components/pagination";
 import { FeaturedRotator } from "@/components/featured-rotator";
 import { IconSearch } from "@/components/icons";
-import { isLicenseGroup, knownLicenseGroup } from "@/lib/license";
 
 export const dynamic = "force-dynamic";
 
@@ -48,14 +46,6 @@ export default async function HomePage({
   const category = typeof params.category === "string" ? params.category : undefined;
   const jurisdiction = typeof params.jur === "string" ? params.jur : undefined;
   const subject = typeof params.subject === "string" ? params.subject : undefined;
-  const language = typeof params.lang === "string" ? params.lang : undefined;
-  // The filter used to take raw SPDX ids, so ?license=MIT is a link that once
-  // worked; resolve it to the group that id belongs to. Anything we do not
-  // recognize is dropped rather than being read as "other".
-  const licenseParam = typeof params.license === "string" ? params.license : "";
-  const license = isLicenseGroup(licenseParam)
-    ? licenseParam
-    : (knownLicenseGroup(licenseParam) ?? undefined);
   const activeOnly = params.active === "1";
   const sortParam = typeof params.sort === "string" ? params.sort : DEFAULT_SORT;
   const sort = (VALID_SORTS as string[]).includes(sortParam)
@@ -65,9 +55,9 @@ export default async function HomePage({
   const requestedPage = Math.max(1, Number(params.page) || 1);
 
   const { userId } = await auth();
-  const filters = { q, categorySlug: category, jurisdiction, subject, sort, language, license, activeOnly, userId };
+  const filters = { q, categorySlug: category, jurisdiction, subject, sort, activeOnly, userId };
 
-  const [firstTry, cats, facetRows, filterOptions, featured] = await Promise.all([
+  const [firstTry, cats, facetRows, featured] = await Promise.all([
     listProjects({ ...filters, limit: PER_PAGE, offset: (requestedPage - 1) * PER_PAGE }),
     db
       .select({
@@ -81,7 +71,6 @@ export default async function HomePage({
       .select({ kind: facets.kind, slug: facets.slug, name: facets.name })
       .from(facets)
       .orderBy(facets.sort),
-    listFilterOptions(),
     listFeaturedProjects(),
   ]);
   const activeCat = cats.find((c) => c.slug === category);
@@ -135,9 +124,6 @@ export default async function HomePage({
           categories={cats}
           jurisdictions={jurisdictions}
           subjects={subjects}
-          languages={filterOptions.languages}
-          licenses={filterOptions.licenses}
-          selectedLicense={license ?? ""}
         />
       </Suspense>
 

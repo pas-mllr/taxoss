@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { IconSearch } from "@/components/icons";
-import { LICENSE_GROUPS, type LicenseGroup } from "@/lib/license";
 
 /** First entry is the default; keep it in sync with DEFAULT_SORT in app/page.tsx. */
 const SORTS = [
@@ -15,23 +14,14 @@ const SORTS = [
   { value: "active", label: "Recently active" },
 ];
 
-const LICENSE_LABELS = new Map(LICENSE_GROUPS.map((g) => [g.value, g.label]));
-
 export function BrowseControls({
   categories,
   jurisdictions,
   subjects,
-  languages,
-  licenses,
-  selectedLicense,
 }: {
   categories: { slug: string; name: string }[];
   jurisdictions: { slug: string; name: string }[];
   subjects: { slug: string; name: string }[];
-  languages: string[];
-  licenses: LicenseGroup[];
-  /** Resolved server-side, so a legacy ?license=MIT link still shows a selection. */
-  selectedLicense: string;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -115,32 +105,6 @@ export function BrowseControls({
         {subjects.map((s) => (
           <option key={s.slug} value={s.slug}>
             {s.name}
-          </option>
-        ))}
-      </select>
-      <select
-        className="select"
-        aria-label="Filter by language"
-        value={params.get("lang") ?? ""}
-        onChange={(e) => update({ lang: e.target.value })}
-      >
-        <option value="">All languages</option>
-        {languages.map((l) => (
-          <option key={l} value={l}>
-            {l}
-          </option>
-        ))}
-      </select>
-      <select
-        className="select"
-        aria-label="Filter by license"
-        value={selectedLicense}
-        onChange={(e) => update({ license: e.target.value })}
-      >
-        <option value="">Any license</option>
-        {licenses.map((l) => (
-          <option key={l} value={l}>
-            {LICENSE_LABELS.get(l) ?? l}
           </option>
         ))}
       </select>
