@@ -17,8 +17,10 @@ import { db } from "@/lib/db";
 import {
   categories,
   comments,
+  facets,
   projectCategories,
   projectContributors,
+  projectFacets,
   projectMaintainers,
   projectReadmes,
   projects,
@@ -86,6 +88,10 @@ export const ACTIVE_WINDOW_DAYS = 30;
 
 export async function listProjects(opts: {
   categorySlug?: string;
+  /** Filter to a jurisdiction facet slug, e.g. "de". */
+  jurisdiction?: string;
+  /** Filter to a tax-subject facet slug, e.g. "vat-gst-sales". */
+  subject?: string;
   q?: string;
   sort?: SortKey;
   /** Filter to a primary GitHub language, e.g. "Python". */
@@ -110,6 +116,8 @@ export async function listProjects(opts: {
 } = {}): Promise<{ items: ProjectListItem[]; total: number }> {
   const {
     categorySlug,
+    jurisdiction,
+    subject,
     q,
     sort = "site-stars",
     language,
@@ -151,6 +159,22 @@ export async function listProjects(opts: {
           .from(projectCategories)
           .innerJoin(categories, eq(projectCategories.categoryId, categories.id))
           .where(eq(categories.slug, categorySlug)),
+      ),
+    );
+  }
+  for (const [kind, slug] of [
+    ["jurisdiction", jurisdiction],
+    ["subject", subject],
+  ] as const) {
+    if (!slug) continue;
+    conds.push(
+      inArray(
+        projects.id,
+        db
+          .select({ id: projectFacets.projectId })
+          .from(projectFacets)
+          .innerJoin(facets, eq(projectFacets.facetId, facets.id))
+          .where(and(eq(facets.kind, kind), eq(facets.slug, slug))),
       ),
     );
   }

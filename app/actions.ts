@@ -20,6 +20,7 @@ import {
 } from "@/lib/db/schema";
 import { isAdminUser } from "@/lib/admin";
 import { autoCategorize } from "@/lib/auto-categories";
+import { autoAssignFacets } from "@/lib/facets";
 import { canEditProject, normalizeGithubLogin } from "@/lib/maintainers";
 import { CLAIM_FILE_NAME, claimToken, verifyClaimFile } from "@/lib/claim-file";
 import { verifyRepoOwnership } from "@/lib/github-ownership";
@@ -194,6 +195,7 @@ export async function submitProject(
       catRows.map((c) => ({ projectId, categoryId: c.id })),
     );
   }
+  await autoAssignFacets(projectId, fields.topics, fields.description, fields.repo);
 
   const shape = {
     source: fields.source,

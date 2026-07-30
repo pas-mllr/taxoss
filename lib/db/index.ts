@@ -7,6 +7,7 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { normalizeSpdx } from "@/lib/license";
 import * as schema from "./schema";
 import { CATEGORY_SEED } from "./seed-categories";
+import { FACET_SEED } from "./seed-facets";
 import { STARTER_PROJECTS } from "./starter-projects";
 
 const DB_PATH =
@@ -108,6 +109,23 @@ function ensureAdditiveColumns(sqlite: Database.Database) {
   sqlite.exec(
     "CREATE INDEX IF NOT EXISTS project_maintainers_login_idx ON project_maintainers (github_login)",
   );
+  sqlite.exec(`CREATE TABLE IF NOT EXISTS facets (
+    id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+    kind text NOT NULL,
+    slug text NOT NULL,
+    name text NOT NULL,
+    sort integer DEFAULT 0 NOT NULL
+  )`);
+  sqlite.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS facets_kind_slug_unique ON facets (kind, slug)",
+  );
+  sqlite.exec(`CREATE TABLE IF NOT EXISTS project_facets (
+    project_id integer NOT NULL,
+    facet_id integer NOT NULL,
+    PRIMARY KEY(project_id, facet_id),
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON UPDATE no action ON DELETE cascade,
+    FOREIGN KEY (facet_id) REFERENCES facets(id) ON UPDATE no action ON DELETE cascade
+  )`);
 }
 
 type Db = ReturnType<typeof createDb>;
@@ -121,6 +139,16 @@ function bootstrapSeed(database: Db) {
       .onConflictDoUpdate({
         target: schema.categories.slug,
         set: { name: c.name, blurb: c.blurb, sort: i },
+      })
+      .run();
+  }
+  for (const [i, f] of FACET_SEED.entries()) {
+    database
+      .insert(schema.facets)
+      .values({ kind: f.kind, slug: f.slug, name: f.name, sort: i })
+      .onConflictDoUpdate({
+        target: [schema.facets.kind, schema.facets.slug],
+        set: { name: f.name, sort: i },
       })
       .run();
   }

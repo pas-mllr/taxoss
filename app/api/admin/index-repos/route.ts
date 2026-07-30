@@ -11,6 +11,7 @@ import {
 } from "@/lib/db/schema";
 import { isAdminRequest } from "@/lib/admin-token";
 import { autoCategorize } from "@/lib/auto-categories";
+import { autoAssignFacets } from "@/lib/facets";
 import { hfKey } from "@/lib/huggingface";
 import { detectSource, resolveRepo } from "@/lib/index-repo";
 
@@ -205,6 +206,7 @@ export async function POST(request: Request) {
         catRows.map((c) => ({ projectId, categoryId: c.id })),
       );
     }
+    await autoAssignFacets(projectId, d.topics, d.description, d.repo);
 
     results.push({ repo: entry.repo, status: "indexed" });
   }

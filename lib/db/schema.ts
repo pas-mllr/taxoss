@@ -149,6 +149,37 @@ export const projectCategories = sqliteTable(
   (t) => [primaryKey({ columns: [t.projectId, t.categoryId] })],
 );
 
+/**
+ * Orthogonal filter facets: jurisdiction ("which country's tax system") and
+ * subject ("which tax domain"). Kept apart from categories, which answer
+ * "what kind of tool". One table, discriminated by kind, so adding a third
+ * facet dimension later is a seed change rather than a migration.
+ */
+export const facets = sqliteTable(
+  "facets",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    kind: text("kind").notNull(), // 'jurisdiction' | 'subject'
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    sort: integer("sort").notNull().default(0),
+  },
+  (t) => [uniqueIndex("facets_kind_slug_unique").on(t.kind, t.slug)],
+);
+
+export const projectFacets = sqliteTable(
+  "project_facets",
+  {
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    facetId: integer("facet_id")
+      .notNull()
+      .references(() => facets.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.projectId, t.facetId] })],
+);
+
 /** Site-level stars ("endorsements"), independent of GitHub stargazers. */
 export const stars = sqliteTable(
   "stars",

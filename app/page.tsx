@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { categories } from "@/lib/db/schema";
+import { categories, facets } from "@/lib/db/schema";
 import {
   listFeaturedProjects,
   listFilterOptions,
@@ -46,6 +46,8 @@ export default async function HomePage({
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q : undefined;
   const category = typeof params.category === "string" ? params.category : undefined;
+  const jurisdiction = typeof params.jur === "string" ? params.jur : undefined;
+  const subject = typeof params.subject === "string" ? params.subject : undefined;
   const language = typeof params.lang === "string" ? params.lang : undefined;
   // The filter used to take raw SPDX ids, so ?license=MIT is a link that once
   // worked; resolve it to the group that id belongs to. Anything we do not
@@ -63,9 +65,9 @@ export default async function HomePage({
   const requestedPage = Math.max(1, Number(params.page) || 1);
 
   const { userId } = await auth();
-  const filters = { q, categorySlug: category, sort, language, license, activeOnly, userId };
+  const filters = { q, categorySlug: category, jurisdiction, subject, sort, language, license, activeOnly, userId };
 
-  const [firstTry, cats, filterOptions, featured] = await Promise.all([
+  const [firstTry, cats, facetRows, filterOptions, featured] = await Promise.all([
     listProjects({ ...filters, limit: PER_PAGE, offset: (requestedPage - 1) * PER_PAGE }),
     db
       .select({
@@ -75,10 +77,16 @@ export default async function HomePage({
       })
       .from(categories)
       .orderBy(categories.sort),
+    db
+      .select({ kind: facets.kind, slug: facets.slug, name: facets.name })
+      .from(facets)
+      .orderBy(facets.sort),
     listFilterOptions(),
     listFeaturedProjects(),
   ]);
   const activeCat = cats.find((c) => c.slug === category);
+  const jurisdictions = facetRows.filter((f) => f.kind === "jurisdiction");
+  const subjects = facetRows.filter((f) => f.kind === "subject");
 
   // A page past the end (stale link, or a filter narrowed since) lands on the
   // last real page instead of an empty grid. The total rides along with the
@@ -125,6 +133,8 @@ export default async function HomePage({
       <Suspense>
         <BrowseControls
           categories={cats}
+          jurisdictions={jurisdictions}
+          subjects={subjects}
           languages={filterOptions.languages}
           licenses={filterOptions.licenses}
           selectedLicense={license ?? ""}

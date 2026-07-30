@@ -19,11 +19,15 @@ const LICENSE_LABELS = new Map(LICENSE_GROUPS.map((g) => [g.value, g.label]));
 
 export function BrowseControls({
   categories,
+  jurisdictions,
+  subjects,
   languages,
   licenses,
   selectedLicense,
 }: {
   categories: { slug: string; name: string }[];
+  jurisdictions: { slug: string; name: string }[];
+  subjects: { slug: string; name: string }[];
   languages: string[];
   licenses: LicenseGroup[];
   /** Resolved server-side, so a legacy ?license=MIT link still shows a selection. */
@@ -85,6 +89,32 @@ export function BrowseControls({
         {categories.map((c) => (
           <option key={c.slug} value={c.slug}>
             {c.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="select"
+        aria-label="Filter by jurisdiction"
+        value={params.get("jur") ?? ""}
+        onChange={(e) => update({ jur: e.target.value })}
+      >
+        <option value="">All jurisdictions</option>
+        {jurisdictions.map((j) => (
+          <option key={j.slug} value={j.slug}>
+            {j.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="select"
+        aria-label="Filter by tax subject"
+        value={params.get("subject") ?? ""}
+        onChange={(e) => update({ subject: e.target.value })}
+      >
+        <option value="">All tax subjects</option>
+        {subjects.map((s) => (
+          <option key={s.slug} value={s.slug}>
+            {s.name}
           </option>
         ))}
       </select>
