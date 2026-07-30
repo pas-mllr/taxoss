@@ -7,8 +7,6 @@ export const metadata: Metadata = {
   description: "Site information for TaxOSS.",
 };
 
-// TODO(owner): replace the placeholder address and KVK number below with the
-// real business details before going live.
 export default function ImprintPage() {
   return (
     <div className="container">
@@ -21,8 +19,8 @@ export default function ImprintPage() {
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Operator</h3>
           <p className="body">Lurn Digital</p>
-          <p className="body">[Street address]</p>
-          <p className="body">[Postal code, City], Netherlands</p>
+          <p className="body">Wijnhaven 65</p>
+          <p className="body">3011 WJ Rotterdam, Netherlands</p>
         </div>
 
         <div className="stack-8">
@@ -40,14 +38,14 @@ export default function ImprintPage() {
           <p className="body">
             Registered with the Dutch Chamber of Commerce (KVK)
           </p>
-          <p className="body">KVK number: [00000000]</p>
+          <p className="body">KVK number: 92305636</p>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Editorial responsibility</h3>
           <p className="body">Lurn Digital</p>
-          <p className="body">[Street address]</p>
-          <p className="body">[Postal code, City], Netherlands</p>
+          <p className="body">Wijnhaven 65</p>
+          <p className="body">3011 WJ Rotterdam, Netherlands</p>
         </div>
 
         <div className="stack-8">
