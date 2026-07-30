@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const LINKS = [
   { href: "/", label: "Directory" },
   { href: "/categories", label: "Categories" },
-  { href: "/jurisdictions", label: "Countries" },
+  { href: "/jurisdictions", label: "Jurisdictions" },
   { href: "/radar", label: "Radar" },
   { href: "/about", label: "About" },
 ];

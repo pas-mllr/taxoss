@@ -3,6 +3,7 @@ import { listProjectsForAdmin } from "@/lib/projects";
 import { listMembers } from "@/lib/users";
 import { projectHref } from "@/lib/sources";
 import { AdminClaims } from "@/components/admin-claims";
+import { AdminTabs } from "@/components/admin-tabs";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function AdminClaimsPage() {
   return (
     <div className="admin-wide">
       <div className="section-head">
+        <span className="eyebrow">Admin</span>
         <h1 className="display-m">Claims.</h1>
         <p className="body-l">
           Hand a project page to a maintainer who proved control out of band —
@@ -33,6 +35,7 @@ export default async function AdminClaimsPage() {
           from a self-verified claim.
         </p>
       </div>
+      <AdminTabs />
 
       <AdminClaims
         projects={projects}

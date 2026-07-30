@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Jurisdictions",
   description:
-    "Open-source tax software by country: filing tools, e-invoicing libraries, rules-as-code, and AI agents across 19 jurisdictions.",
+    "Open-source tax software by jurisdiction: filing tools, e-invoicing libraries, rules-as-code, and AI agents across 19 jurisdictions.",
 };
 
 export default async function JurisdictionsPage() {
@@ -31,11 +31,12 @@ export default async function JurisdictionsPage() {
     <div className="container">
       <div className="section-head">
         <span className="eyebrow">Jurisdictions</span>
-        <h1 className="display-m">Tax open source, country by country.</h1>
+        <h1 className="display-m">Open source tax software, by jurisdiction.</h1>
         <p className="body-l" style={{ maxWidth: 620 }}>
           Tax software doesn&apos;t travel — a VAT library is only as useful as
           the jurisdiction it understands. Each page maps what the open-source
-          ecosystem covers in one country, and names what&apos;s still missing.
+          ecosystem covers in one jurisdiction, and names what&apos;s still
+          missing.
         </p>
       </div>
       <div className="project-grid">

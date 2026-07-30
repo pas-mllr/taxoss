@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "About" };
 export default function AboutPage() {
   return (
     <div className="container">
-      <div className="narrow stack-24 prose">
+      <div className="stack-24 prose" style={{ maxWidth: 640 }}>
         <div className="section-head">
           <span className="eyebrow">About</span>
           <h1 className="display-m">How this works.</h1>

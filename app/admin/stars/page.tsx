@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { listStarActivity } from "@/lib/projects";
 import { AdminStars } from "@/components/admin-stars";
+import { AdminTabs } from "@/components/admin-tabs";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +27,9 @@ export default async function AdminStarsPage() {
   const recent = countRecent(rows);
 
   return (
-    <div className="admin-wide stack-24">
+    <div className="admin-wide">
       <div className="section-head">
+        <span className="eyebrow">Admin</span>
         <h1 className="display-m">Stars.</h1>
         <p className="body-l">
           Every community star cast on the index, and who cast it. Site stars
@@ -35,27 +37,30 @@ export default async function AdminStarsPage() {
           the directory&apos;s default sort.
         </p>
       </div>
+      <AdminTabs />
 
-      <div className="admin-stats">
-        <div className="stat-tile is-blue">
-          <span className="stat-v">{rows.length}</span>
-          <span className="stat-l">Stars cast</span>
+      <div className="stack-24">
+        <div className="admin-stats">
+          <div className="stat-tile is-blue">
+            <span className="stat-v">{rows.length}</span>
+            <span className="stat-l">Stars cast</span>
+          </div>
+          <div className="stat-tile">
+            <span className="stat-v">{projects.size}</span>
+            <span className="stat-l">Projects starred</span>
+          </div>
+          <div className="stat-tile">
+            <span className="stat-v">{members.size}</span>
+            <span className="stat-l">Members starring</span>
+          </div>
+          <div className="stat-tile is-violet">
+            <span className="stat-v">{recent}</span>
+            <span className="stat-l">Last {RECENT_WINDOW_DAYS} days</span>
+          </div>
         </div>
-        <div className="stat-tile">
-          <span className="stat-v">{projects.size}</span>
-          <span className="stat-l">Projects starred</span>
-        </div>
-        <div className="stat-tile">
-          <span className="stat-v">{members.size}</span>
-          <span className="stat-l">Members starring</span>
-        </div>
-        <div className="stat-tile is-violet">
-          <span className="stat-v">{recent}</span>
-          <span className="stat-l">Last {RECENT_WINDOW_DAYS} days</span>
-        </div>
+
+        <AdminStars rows={rows} />
       </div>
-
-      <AdminStars rows={rows} />
     </div>
   );
 }

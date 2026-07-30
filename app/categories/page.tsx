@@ -24,7 +24,7 @@ export default async function CategoriesPage() {
     <div className="container">
       <div className="section-head">
         <span className="eyebrow">Categories</span>
-        <h1 className="display-m">The shape of tax open source.</h1>
+        <h1 className="display-m">Open source tax software, by category.</h1>
         <p className="body-l" style={{ maxWidth: 620 }}>
           Twenty practice-grounded categories, from filing returns to serving
           tax rules over MCP. Every project carries one to four.

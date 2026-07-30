@@ -103,6 +103,9 @@ export default async function HomePage({
     <div className="container">
       <div className="dir-head">
         <div>
+          <span className="eyebrow" style={{ marginBottom: 14 }}>
+            Directory
+          </span>
           <h1 className="display-m">
             {activeCat ? activeCat.name : "Open Source Tax Software."}
           </h1>
