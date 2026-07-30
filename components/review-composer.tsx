@@ -100,7 +100,7 @@ export function ReviewComposer({
             {error}
           </span>
         ) : saved ? (
-          <span className="form-hint" style={{ margin: 0, color: "#2E6B52" }}>
+          <span className="form-hint" style={{ margin: 0, color: "var(--forest)" }}>
             Review saved.
           </span>
         ) : (

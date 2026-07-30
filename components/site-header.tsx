@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Show, UserButton } from "@clerk/nextjs";
 import { formatCount } from "@/lib/format";
 import { IconGitHub, IconStar } from "@/components/icons";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const LINKS = [
   { href: "/", label: "Directory" },
@@ -85,6 +86,7 @@ export function SiteHeader({
             <span className="topbar-stat-l">tracked</span>
           </span>
           <div className="topbar-right">
+            <ThemeToggle />
             <a
               href={REPO_URL}
               target="_blank"

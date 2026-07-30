@@ -40,7 +40,10 @@ export const viewport: Viewport = {
   // Lets fixed elements extend into the notch/home-indicator areas, which
   // the safe-area insets in globals.css then account for.
   viewportFit: "cover",
-  themeColor: "#F8F6F0",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F8F6F0" },
+    { media: "(prefers-color-scheme: dark)", color: "#161110" },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -97,8 +100,19 @@ export default async function RootLayout({
       <html
         lang="en"
         className={`${bigShoulders.variable} ${jetbrains.variable} ${inter.variable}`}
+        // data-theme is set pre-paint by the inline script below; React must
+        // not try to reconcile that attribute during hydration.
+        suppressHydrationWarning
       >
         <body>
+          {/* Runs before first paint: applies the stored theme (or the OS
+              preference) so there is never a light flash in dark mode. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                '(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}})()',
+            }}
+          />
           <SiteHeader trackedStars={trackedStars} isAdmin={isAdmin} />
           <main>{children}</main>
           <SiteFooter />

@@ -6,6 +6,8 @@
    ========================================================================== */
 
 :root {
+  color-scheme: light;
+
   /* ===== Statement colors ===== */
   --vermilion:      #E8442A;
   --vermilion-700:  #C2371F;
@@ -26,6 +28,20 @@
   --rule:           rgba(36, 24, 17, 0.14);
   --rule-2:         rgba(36, 24, 17, 0.08);
   --rule-strong:    rgba(23, 16, 8, 0.42);
+  /* Fixed dark ink for text sitting on brand accent fills (butter, amber
+     highlights) — must NOT flip in dark mode. */
+  --ink-on-accent:  #171008;
+
+  /* ===== Channel tokens — rgba() building blocks. Dark mode swaps these,
+     so every translucent surface/border below flips with one override. ===== */
+  --white-rgb:    255, 255, 255; /* glass & raised translucent surfaces */
+  --cream-rgb:    248, 246, 240;
+  --ink-rgb:      36, 24, 17;
+  --ink-deep-rgb: 23, 16, 8;
+  --shade-rgb:    31, 18, 8;     /* shadows & scrims: stays dark in dark mode */
+  --forest-rgb:   31, 77, 63;
+  --danger-rgb:   194, 55, 31;
+  --warning-rgb:  154, 103, 8;
 
   /* ===== Graphite (dark surfaces: code blocks) ===== */
   --graphite-900:   #1B1610;
@@ -57,9 +73,9 @@
   --radius-pill: 999px;
 
   /* ===== Shadows (rare) ===== */
-  --shadow-soft:    0 2px 10px rgba(31, 18, 8, 0.05);
-  --shadow-card:    0 24px 48px -16px rgba(31, 18, 8, 0.16);
-  --shadow-overlay: 0 32px 64px -24px rgba(31, 18, 8, 0.28);
+  --shadow-soft:    0 2px 10px rgba(var(--shade-rgb), 0.05);
+  --shadow-card:    0 24px 48px -16px rgba(var(--shade-rgb), 0.16);
+  --shadow-overlay: 0 32px 64px -24px rgba(var(--shade-rgb), 0.28);
 
   /* ===== Motion ===== */
   --ease-soft:  cubic-bezier(0.2, 0.6, 0.2, 1);
@@ -71,6 +87,57 @@
   --sun-gradient: radial-gradient(circle at center,
     #E8442A 0%, #E8442A 18%, #F2683A 32%, #F2A340 48%, #FFE9B0 64%,
     rgba(245, 239, 216, 0) 78%);
+}
+
+/* ==========================================================================
+   Dark mode — "Solar, after dark": deep warm espresso paper, same vermilion
+   signal. Set via data-theme by the no-flash script in layout.tsx; toggled
+   in the header, persisted to localStorage, defaults to the OS preference.
+   ========================================================================== */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --vermilion-700:  #FF8066;               /* text/hover accent needs lift on dark */
+  --vermilion-200:  rgba(232, 68, 42, 0.22);
+  --forest:         #8FD0B4;
+  --forest-200:     rgba(127, 191, 165, 0.16);
+
+  --cream:          #161110;
+  --cream-deep:     #0F0B0A;
+  --paper-lift:     #211A17;
+  --ink:            #EAE1D6;
+  --ink-deep:       #F7F1E7;
+  --ink-700:        #C6B8AA;
+  --ink-500:        #93857A;
+  --rule:           rgba(234, 225, 214, 0.14);
+  --rule-2:         rgba(234, 225, 214, 0.08);
+  --rule-strong:    rgba(247, 241, 231, 0.4);
+
+  --white-rgb:    41, 33, 29;
+  --cream-rgb:    22, 17, 16;
+  --ink-rgb:      234, 225, 214;
+  --ink-deep-rgb: 247, 241, 231;
+  --shade-rgb:    0, 0, 0;
+  --forest-rgb:   127, 191, 165;
+  --danger-rgb:   255, 138, 112;
+  --warning-rgb:  233, 178, 90;
+
+  --graphite-900:   #251E17;               /* code slabs lift off the page */
+
+  --danger:         #FF8A70;
+  --danger-soft:    rgba(232, 92, 64, 0.14);
+  --warning:        #E9B25A;
+  --warning-soft:   rgba(242, 163, 64, 0.14);
+  --success-soft:   rgba(82, 158, 128, 0.14);
+
+  --hover:      rgba(234, 225, 214, 0.06);
+  --selected:   rgba(232, 68, 42, 0.16);
+  --focus-ring: rgba(232, 68, 42, 0.45);
+
+  --shadow-soft:    0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-card:    0 24px 48px -16px rgba(0, 0, 0, 0.5);
+  --shadow-overlay: 0 32px 64px -24px rgba(0, 0, 0, 0.65);
 }
 
 /* ==========================================================================
@@ -151,7 +218,7 @@ p { margin: 0; }
 }
 
 .mark-hl {
-  color: var(--ink-deep);
+  color: var(--ink-on-accent);
   background-image: linear-gradient(to right, var(--butter), rgba(242, 163, 64, 0.55));
   background-repeat: no-repeat;
   background-size: 100% 78%;
@@ -165,26 +232,26 @@ p { margin: 0; }
    ========================================================================== */
 
 .glass {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 246, 240, 0.5));
+  background: linear-gradient(180deg, rgba(var(--white-rgb), 0.72), rgba(var(--cream-rgb), 0.5));
   backdrop-filter: blur(14px) saturate(115%);
   -webkit-backdrop-filter: blur(14px) saturate(115%);
   border: 1px solid var(--rule);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), var(--shadow-soft);
+  box-shadow: inset 0 1px 0 rgba(var(--white-rgb), 0.5), var(--shadow-soft);
 }
 .glass-strong {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 246, 240, 0.72));
+  background: linear-gradient(180deg, rgba(var(--white-rgb), 0.88), rgba(var(--cream-rgb), 0.72));
   backdrop-filter: blur(18px) saturate(115%);
   -webkit-backdrop-filter: blur(18px) saturate(115%);
   border: 1px solid var(--rule);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), var(--shadow-soft);
+  box-shadow: inset 0 1px 0 rgba(var(--white-rgb), 0.6), var(--shadow-soft);
 }
 
 .glass-chip {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 7px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(23, 16, 8, 0.3);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(248, 246, 240, 0.4));
+  border: 1px solid rgba(var(--ink-deep-rgb), 0.3);
+  background: linear-gradient(180deg, rgba(var(--white-rgb), 0.65), rgba(var(--cream-rgb), 0.4));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
@@ -240,13 +307,13 @@ a.glass-chip:hover, button.glass-chip:hover {
 
 .btn-danger {
   background: transparent; color: var(--danger);
-  border: 1px solid rgba(194, 55, 31, 0.45);
+  border: 1px solid rgba(var(--danger-rgb), 0.45);
 }
 .btn-danger:hover { background: var(--danger); color: var(--cream); border-color: var(--danger); }
 
 .btn-glass {
-  border: 1px solid rgba(31, 18, 8, 0.25);
-  background: rgba(255, 255, 255, 0.5); color: var(--ink-deep);
+  border: 1px solid rgba(var(--ink-deep-rgb), 0.25);
+  background: rgba(var(--white-rgb), 0.5); color: var(--ink-deep);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -273,7 +340,7 @@ a.glass-chip:hover, button.glass-chip:hover {
   border-radius: var(--radius-md);
   transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
 }
-.field:hover { border-color: rgba(36, 24, 17, 0.3); }
+.field:hover { border-color: rgba(var(--ink-rgb), 0.3); }
 .field:focus-within { border-color: var(--vermilion); box-shadow: 0 0 0 2px var(--focus-ring); }
 .field.is-invalid { border-color: var(--danger); }
 .field > svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--ink-500); }
@@ -293,7 +360,7 @@ a.glass-chip:hover, button.glass-chip:hover {
   resize: vertical; outline: none;
   transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
 }
-.textarea:hover { border-color: rgba(36, 24, 17, 0.3); }
+.textarea:hover { border-color: rgba(var(--ink-rgb), 0.3); }
 .textarea:focus { border-color: var(--vermilion); box-shadow: 0 0 0 2px var(--focus-ring); }
 .textarea::placeholder { color: var(--ink-500); opacity: 0.7; }
 
@@ -312,15 +379,19 @@ a.glass-chip:hover, button.glass-chip:hover {
   outline: none; cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
 }
-.select:hover { border-color: rgba(36, 24, 17, 0.3); }
+.select:hover { border-color: rgba(var(--ink-rgb), 0.3); }
 .select:focus-visible { border-color: var(--vermilion); box-shadow: 0 0 0 2px var(--focus-ring); }
+/* The chevron is baked into a data URI, so the dark theme needs its own. */
+[data-theme="dark"] .select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='%23A6957F' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+}
 
 .choice-chip {
   position: relative;
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(23, 16, 8, 0.35);
+  border: 1px solid rgba(var(--ink-deep-rgb), 0.35);
   background: transparent;
   font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
   letter-spacing: -0.01em;
@@ -344,9 +415,9 @@ a.glass-chip:hover, button.glass-chip:hover {
   border: 1px solid var(--rule);
   background: var(--paper-lift); color: var(--ink);
 }
-.notice.is-success { background: var(--success-soft); border-color: rgba(31, 77, 63, 0.3); color: var(--forest); }
-.notice.is-error   { background: var(--danger-soft); border-color: rgba(194, 55, 31, 0.3); color: var(--danger); }
-.notice.is-warning { background: var(--warning-soft); border-color: rgba(154, 103, 8, 0.3); color: var(--warning); }
+.notice.is-success { background: var(--success-soft); border-color: rgba(var(--forest-rgb), 0.3); color: var(--forest); }
+.notice.is-error   { background: var(--danger-soft); border-color: rgba(var(--danger-rgb), 0.3); color: var(--danger); }
+.notice.is-warning { background: var(--warning-soft); border-color: rgba(var(--warning-rgb), 0.3); color: var(--warning); }
 
 /* ==========================================================================
    Badges, tags, status
@@ -390,7 +461,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 .status-pill.is-claimed { background: var(--forest-200); color: var(--forest); }
 .status-pill.is-unclaimed { background: var(--cream-deep); color: var(--ink-500); }
 .status-pill.is-archived { background: var(--warning-soft); color: var(--warning); }
-.status-pill.is-hf { background: var(--butter); color: var(--ink-700); }
+.status-pill.is-hf { background: var(--butter); color: var(--ink-on-accent); }
 .status-pill.is-hf svg { width: 12px; height: 12px; }
 
 /* Compact claimed marker on project cards — the full "Maintained" pill was
@@ -410,7 +481,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   border-radius: var(--radius-md);
   font-family: var(--font-display); font-weight: 700; font-size: 18px;
 }
-.fc-avatar-hf { background: var(--butter); color: var(--ink-deep); }
+.fc-avatar-hf { background: var(--butter); color: var(--ink-on-accent); }
 
 .avatar {
   display: inline-flex; align-items: center; justify-content: center;
@@ -424,9 +495,9 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 
 .rating { display: inline-flex; align-items: center; gap: 2px; color: var(--vermilion); }
 .rating svg { width: 14px; height: 14px; }
-.rating .is-empty { color: rgba(36, 24, 17, 0.22); }
+.rating .is-empty { color: rgba(var(--ink-rgb), 0.22); }
 .rating-input { display: inline-flex; gap: 2px; }
-.rating-input button { padding: 2px; border-radius: 4px; color: rgba(36, 24, 17, 0.24); transition: color 80ms ease, transform 80ms ease; }
+.rating-input button { padding: 2px; border-radius: 4px; color: rgba(var(--ink-rgb), 0.24); transition: color 80ms ease, transform 80ms ease; }
 .rating-input button.is-on { color: var(--vermilion); }
 .rating-input button:hover { transform: scale(1.12); }
 .rating-input button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
@@ -452,7 +523,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   border-radius: var(--radius-lg); padding: 14px;
   display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
   border: 1px solid var(--rule);
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(var(--white-rgb), 0.65);
 }
 .stat-tile .stat-v { font-family: var(--font-mono); font-size: 24px; letter-spacing: -0.02em; line-height: 1; }
 .stat-tile .stat-l { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em; font-weight: 600; text-transform: uppercase; line-height: 1.3; color: var(--ink-500); }
@@ -465,7 +536,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 
 .topbar {
   position: sticky; top: 0; z-index: 200;
-  background: rgba(248, 246, 240, 0.85);
+  background: rgba(var(--cream-rgb), 0.85);
   backdrop-filter: blur(14px) saturate(115%);
   -webkit-backdrop-filter: blur(14px) saturate(115%);
   border-bottom: 1px solid var(--rule);
@@ -496,7 +567,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   padding: 4px 12px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--rule);
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(var(--white-rgb), 0.5);
   font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-700);
   white-space: nowrap;
 }
@@ -523,12 +594,26 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 .topbar-gh:hover { color: var(--ink-deep); background: var(--hover); }
 .topbar-user { display: inline-flex; align-items: center; }
 
+/* Theme toggle — same footprint as .topbar-gh but visible at all widths.
+   Both icons render; CSS picks one per theme so hydration never mismatches. */
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  color: var(--ink-700);
+  transition: color var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.theme-toggle svg { width: 16px; height: 16px; }
+.theme-toggle:hover { color: var(--ink-deep); background: var(--hover); }
+.theme-toggle .tt-sun { display: none; }
+[data-theme="dark"] .theme-toggle .tt-sun { display: block; }
+[data-theme="dark"] .theme-toggle .tt-moon { display: none; }
+
 .topbar-burger { display: none; }
 .nav-drawer {
   position: fixed; inset: 0; z-index: 300;
   display: flex; flex-direction: column; justify-content: center; gap: 14px;
   padding: env(safe-area-inset-top) 36px env(safe-area-inset-bottom);
-  background: var(--graphite-900); color: var(--cream);
+  background: var(--graphite-900); color: var(--graphite-100);
   transform: translateX(100%);
   visibility: hidden;
   overflow-y: auto; overscroll-behavior: contain;
@@ -541,7 +626,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 }
 .nav-drawer a {
   font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
-  font-size: 34px; color: var(--cream); padding: 6px 0;
+  font-size: 34px; color: var(--graphite-100); padding: 6px 0;
 }
 .nav-drawer-close {
   position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px;
@@ -656,7 +741,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   display: inline-flex; align-items: center; gap: 5px;
   padding: 3px 10px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(23, 16, 8, 0.35);
+  border: 1px solid rgba(var(--ink-deep-rgb), 0.35);
   background: transparent;
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em;
   color: var(--ink-700);
@@ -687,7 +772,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--white-rgb), 0.55);
 }
 .claim-band p { font-family: var(--font-sans); color: var(--ink-700); font-size: 13.5px; max-width: 560px; }
 
@@ -758,7 +843,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 .readme a:hover { text-decoration: underline; }
 .readme code {
   font-family: var(--font-mono);
-  font-size: 12px; background: rgba(36, 24, 17, 0.07); padding: 2px 5px; border-radius: 3px;
+  font-size: 12px; background: rgba(var(--ink-rgb), 0.07); padding: 2px 5px; border-radius: 3px;
 }
 .readme pre {
   max-width: 100%;
@@ -876,7 +961,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
 .empty-state {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   padding: 40px 24px; text-align: center;
-  border: 1px dashed rgba(36, 24, 17, 0.28); border-radius: var(--radius-lg);
+  border: 1px dashed rgba(var(--ink-rgb), 0.28); border-radius: var(--radius-lg);
   color: var(--ink-500);
 }
 .empty-state .es-icon {
@@ -1020,7 +1105,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   display: flex; flex-direction: column; gap: 0;
   margin: 0; padding: 4px 14px;
   border: 1px solid var(--rule-2); border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--white-rgb), 0.55);
 }
 .admin-sublist li {
   display: flex; align-items: center; gap: 10px;
@@ -1185,7 +1270,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   background: var(--live);
   box-shadow: 0 0 0 3px rgba(83, 235, 144, 0.22);
 }
-.browse-toggle.is-active .dot { background: var(--cream); box-shadow: 0 0 0 3px rgba(248, 246, 240, 0.25); }
+.browse-toggle.is-active .dot { background: var(--cream); box-shadow: 0 0 0 3px rgba(var(--cream-rgb), 0.25); }
 
 /* ==========================================================================
    Maintainer note — claimant-authored intro above the README
@@ -1293,7 +1378,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   overflow: hidden;
   transition: border-color var(--dur-fast) var(--ease-soft);
 }
-.readme-editor:focus-within { border-color: rgba(36, 24, 17, 0.3); }
+.readme-editor:focus-within { border-color: rgba(var(--ink-rgb), 0.3); }
 
 .readme-editor-toolbar {
   display: flex; flex-wrap: wrap; align-items: center; gap: 2px;
@@ -1393,7 +1478,7 @@ a.tag:hover { background: var(--vermilion); border-color: var(--vermilion); colo
   box-shadow: var(--shadow-overlay);
 }
 .mm-dialog::backdrop {
-  background: rgba(31, 18, 8, 0.35);
+  background: rgba(var(--shade-rgb), 0.35);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
