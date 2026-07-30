@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { categories, projects, projectStats } from "@/lib/db/schema";
 import { SITE_URL } from "@/lib/site";
 import { projectHref } from "@/lib/sources";
+import { JURISDICTION_CONTENT } from "@/lib/jurisdictions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/categories`, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${SITE_URL}/jurisdictions`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/radar`, changeFrequency: "daily", priority: 0.5 },
     { url: `${SITE_URL}/mcp`, changeFrequency: "monthly", priority: 0.4 },
@@ -40,6 +42,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const jurisdictionEntries: MetadataRoute.Sitemap = Object.keys(
+    JURISDICTION_CONTENT,
+  ).map((slug) => ({
+    url: `${SITE_URL}/jurisdictions/${slug}`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   const projectEntries: MetadataRoute.Sitemap = projectRows.map((p) => ({
     url: `${SITE_URL}${projectHref(p)}`,
     lastModified: p.pushedAt ?? p.updatedAt,
@@ -47,5 +57,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticEntries, ...categoryEntries, ...projectEntries];
+  return [...staticEntries, ...categoryEntries, ...jurisdictionEntries, ...projectEntries];
 }
