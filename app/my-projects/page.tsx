@@ -88,18 +88,19 @@ export default async function MyProjectsPage({
 
   return (
     <div className="container">
-      <div className="dir-head">
-        <div>
+      <div className="section-head">
+        <span className="eyebrow">Your list</span>
+        <div className="row">
           <h1 className="display-m">My projects.</h1>
-          <p className="dir-sub">
-            {tab === "maintained"
-              ? "The projects you maintain on TaxOSS — claimed by you, or granted to your GitHub account by a claimant. Nobody else sees this page."
-              : "Everything you have starred, most recent first. Stars are yours alone — they are separate from the project's GitHub stargazers, and nobody else sees this page."}
-          </p>
+          <span className="meta-mono">
+            {items.length} project{items.length !== 1 ? "s" : ""}
+          </span>
         </div>
-        <span className="meta-mono">
-          {items.length} project{items.length !== 1 ? "s" : ""}
-        </span>
+        <p className="body-l" style={{ maxWidth: 620 }}>
+          {tab === "maintained"
+            ? "The projects you maintain on TaxOSS — claimed by you, or granted to your GitHub account by a claimant. Nobody else sees this page."
+            : "Everything you have starred, most recent first. Stars are yours alone — they are separate from the project's GitHub stargazers, and nobody else sees this page."}
+        </p>
       </div>
 
       <Tabs active={tab} />
