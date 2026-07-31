@@ -6,6 +6,7 @@ import { facets, projectFacets, projectStats } from "@/lib/db/schema";
 import { isProjectActive } from "@/lib/health";
 import { JURISDICTION_CONTENT } from "@/lib/jurisdictions";
 import { listMandates } from "@/lib/mandate-data";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 import { ATLAS_PATTERNS, ATLAS_SECTIONS } from "@/lib/atlas";
 import { IconArrowRight } from "@/components/icons";
 
@@ -25,6 +26,8 @@ type JurCard = {
 };
 
 export default async function JurisdictionsPage() {
+  const editorialPagesEnabled = areEditorialPagesEnabled();
+
   const [jurs, rows, mandateRows] = await Promise.all([
     db
       .select({ id: facets.id, slug: facets.slug, name: facets.name })
@@ -182,9 +185,11 @@ export default async function JurisdictionsPage() {
                   <Link href="/submit" className="btn btn-primary">
                     Submit a project
                   </Link>
-                  <Link href="/stack#calendar" className="btn btn-secondary">
-                    The compliance calendar
-                  </Link>
+                  {editorialPagesEnabled && (
+                    <Link href="/stack#calendar" className="btn btn-secondary">
+                      The compliance calendar
+                    </Link>
+                  )}
                 </div>
               )}
             </section>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
@@ -13,6 +14,7 @@ import {
 import { licenseGroup } from "@/lib/license";
 import { isProjectActive } from "@/lib/health";
 import { THESES } from "@/lib/insights";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +36,8 @@ const AI_CATEGORIES = [
 const CALC_CATEGORIES = ["tax-engines", "rules-as-code", "vat-gst", "invoicing"];
 
 export default async function InsightsPage() {
+  if (!areEditorialPagesEnabled()) notFound();
+
   const [projectRows, catRows, facetRows] = await Promise.all([
     db
       .select({

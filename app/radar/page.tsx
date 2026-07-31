@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/lib/db/schema";
 import { listMandates } from "@/lib/mandate-data";
 import { projectHref } from "@/lib/sources";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 import { dateDaysAgo, daysUntilDateOnly, formatDateOnly } from "@/lib/time";
 import { NewsletterForm } from "@/components/newsletter-form";
 
@@ -44,6 +46,8 @@ function countdown(days: number): string {
 }
 
 export default async function RadarPage() {
+  if (!areEditorialPagesEnabled()) notFound();
+
   const releaseCutoff = dateDaysAgo(RELEASE_WINDOW_DAYS);
   const newCutoff = dateDaysAgo(NEW_WINDOW_DAYS);
   const cadenceCutoff = dateDaysAgo(CADENCE_WINDOW_DAYS);

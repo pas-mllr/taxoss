@@ -1,7 +1,12 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 
 export default function robots(): MetadataRoute.Robots {
+  const editorialDisallow = areEditorialPagesEnabled()
+    ? []
+    : ["/stack", "/radar", "/insights"];
+
   return {
     rules: [
       {
@@ -15,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
           "/sign-in",
           "/sign-up",
           "/api/",
+          ...editorialDisallow,
         ],
       },
     ],

@@ -5,17 +5,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Show, UserButton } from "@clerk/nextjs";
 import { formatCount } from "@/lib/format";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 import { IconGitHub, IconStar } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-const LINKS = [
+type NavLink = {
+  href: string;
+  label: string;
+  editorial?: boolean;
+};
+
+const LINKS: NavLink[] = [
   { href: "/", label: "Directory" },
-  { href: "/stack", label: "Stack" },
+  { href: "/stack", label: "Stack", editorial: true },
   { href: "/jurisdictions", label: "Jurisdictions" },
-  { href: "/radar", label: "Radar" },
-  { href: "/insights", label: "Insights" },
+  { href: "/radar", label: "Radar", editorial: true },
+  { href: "/insights", label: "Insights", editorial: true },
   { href: "/about", label: "About" },
-];
+].filter((link) => !link.editorial || areEditorialPagesEnabled());
 
 const REPO_URL = "https://github.com/pas-mllr/taxoss";
 

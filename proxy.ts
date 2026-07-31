@@ -4,6 +4,10 @@
 // server actions instead, so signed-out visitors can read everything.
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import {
+  areEditorialPagesEnabled,
+  isEditorialPagePath,
+} from "@/lib/site-features";
 
 const CANONICAL_HOST = "tax-oss.com";
 
@@ -22,6 +26,15 @@ export default clerkMiddleware(async (auth, req) => {
     url.host = CANONICAL_HOST;
     url.port = "";
     return NextResponse.redirect(url, 308);
+  }
+  if (!areEditorialPagesEnabled() && isEditorialPagePath(req.nextUrl.pathname)) {
+    return new NextResponse("Not Found", {
+      status: 404,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Robots-Tag": "noindex",
+      },
+    });
   }
   if (isProtectedRoute(req)) {
     await auth.protect();

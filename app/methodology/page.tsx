@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { METHODOLOGY_VERSION } from "@/lib/methodology";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 
 export const metadata: Metadata = {
   title: "Methodology",
@@ -15,6 +16,8 @@ const SOURCE_HIERARCHY = [
 ] as const;
 
 export default function MethodologyPage() {
+  const editorialPagesEnabled = areEditorialPagesEnabled();
+
   return (
     <div className="container">
       <div className="section-head">
@@ -114,8 +117,12 @@ export default function MethodologyPage() {
         </section>
 
         <div className="cluster">
-          <Link href="/stack" className="btn btn-secondary">The Stack</Link>
-          <Link href="/radar" className="btn btn-secondary">The Radar</Link>
+          {editorialPagesEnabled && (
+            <Link href="/stack" className="btn btn-secondary">The Stack</Link>
+          )}
+          {editorialPagesEnabled && (
+            <Link href="/radar" className="btn btn-secondary">The Radar</Link>
+          )}
           <Link href="/" className="btn btn-primary">Browse the index</Link>
         </div>
       </div>

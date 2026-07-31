@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 
 export function SiteFooter() {
+  const editorialPagesEnabled = areEditorialPagesEnabled();
+
   return (
     <footer className="site-footer">
       <div className="container footer-newsletter">
@@ -11,8 +14,8 @@ export function SiteFooter() {
         <span className="footer-brand">TaxOSS</span>
         <nav className="footer-links">
           <Link href="/">Directory</Link>
-          <Link href="/stack">Stack</Link>
-          <Link href="/insights">Insights</Link>
+          {editorialPagesEnabled && <Link href="/stack">Stack</Link>}
+          {editorialPagesEnabled && <Link href="/insights">Insights</Link>}
           <Link href="/submit">Submit</Link>
           <Link href="/mcp">MCP</Link>
           <Link href="/about">About</Link>

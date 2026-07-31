@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { categories, projectCategories, projects, projectStats } from "@/lib/db/schema";
@@ -7,6 +8,7 @@ import { formatCount } from "@/lib/format";
 import { isProjectActive } from "@/lib/health";
 import { listMandates } from "@/lib/mandate-data";
 import { EVAL_POINTS, STACK_SECTIONS } from "@/lib/stack";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 import { formatDateOnly } from "@/lib/time";
 import { IconArrowRight } from "@/components/icons";
 
@@ -55,6 +57,8 @@ const PERSONAS = [
 ];
 
 export default async function StackPage() {
+  if (!areEditorialPagesEnabled()) notFound();
+
   const [cats, rows, mandateRows] = await Promise.all([
     db
       .select({

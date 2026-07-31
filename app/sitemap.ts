@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/site";
 import { projectHref } from "@/lib/sources";
 import { JURISDICTION_CONTENT } from "@/lib/jurisdictions";
 import { listMandates } from "@/lib/mandate-data";
+import { areEditorialPagesEnabled } from "@/lib/site-features";
 
 export const dynamic = "force-dynamic";
 
@@ -27,14 +28,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listMandates(),
   ]);
 
+  const editorialEntries: MetadataRoute.Sitemap = areEditorialPagesEnabled()
+    ? [
+        { url: `${SITE_URL}/stack`, changeFrequency: "weekly", priority: 0.6 },
+        { url: `${SITE_URL}/insights`, changeFrequency: "weekly", priority: 0.6 },
+        { url: `${SITE_URL}/radar`, changeFrequency: "daily", priority: 0.5 },
+      ]
+    : [];
+
   const staticEntries: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE_URL}/stack`, changeFrequency: "weekly", priority: 0.6 },
-    { url: `${SITE_URL}/insights`, changeFrequency: "weekly", priority: 0.6 },
+    ...editorialEntries,
     { url: `${SITE_URL}/jurisdictions`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/methodology`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${SITE_URL}/radar`, changeFrequency: "daily", priority: 0.5 },
     { url: `${SITE_URL}/mcp`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/submit`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
