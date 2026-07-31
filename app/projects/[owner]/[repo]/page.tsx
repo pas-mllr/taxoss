@@ -4,7 +4,14 @@ import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { categories, projectCategories, projectStats, users } from "@/lib/db/schema";
+import {
+  categories,
+  facets,
+  projectCategories,
+  projectFacets,
+  projectStats,
+  users,
+} from "@/lib/db/schema";
 import { isAdminUser } from "@/lib/admin";
 import { canEditProject, listProjectMaintainers } from "@/lib/maintainers";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -17,6 +24,7 @@ import {
   getProjectSocial,
 } from "@/lib/projects";
 import { formatCount, formatDate, timeAgo } from "@/lib/format";
+import { getProjectEvidence } from "@/lib/evaluation-data";
 import { StarButton } from "@/components/star-button";
 import { CommentComposer } from "@/components/comment-composer";
 import { MaintainerCardExtras } from "@/components/maintainer-card-extras";
@@ -24,6 +32,7 @@ import { MaintainerNote } from "@/components/maintainer-note";
 import { FeatureToggle } from "@/components/feature-toggle";
 import { ReviewComposer } from "@/components/review-composer";
 import { EntryDelete } from "@/components/entry-delete";
+import { ProjectEvidencePanel } from "@/components/project-evidence";
 import {
   IconExternal,
   IconGitHub,
@@ -81,7 +90,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
 
   const { userId } = await auth();
 
-  const [stats, cats, social, claimant, contributors, maintainers] = await Promise.all([
+  const [stats, cats, taxonomy, social, claimant, contributors, maintainers] = await Promise.all([
     ensureFreshStats(project),
     db
       .select({ slug: categories.slug, name: categories.name })
@@ -89,6 +98,12 @@ export default async function ProjectPage({ params }: { params: Params }) {
       .innerJoin(categories, eq(projectCategories.categoryId, categories.id))
       .where(eq(projectCategories.projectId, project.id))
       .orderBy(categories.sort),
+    db
+      .select({ kind: facets.kind, slug: facets.slug, name: facets.name })
+      .from(projectFacets)
+      .innerJoin(facets, eq(projectFacets.facetId, facets.id))
+      .where(eq(projectFacets.projectId, project.id))
+      .orderBy(facets.sort),
     getProjectSocial(project.id, userId ?? null),
     project.claimedById
       ? db
@@ -101,7 +116,10 @@ export default async function ProjectPage({ params }: { params: Params }) {
     ensureFreshContributors(project),
     listProjectMaintainers(project.id),
   ]);
-  const custom = await getCustomReadme(project.id);
+  const [custom, evidence] = await Promise.all([
+    getCustomReadme(project.id),
+    getProjectEvidence(project.id),
+  ]);
   const readmeHtml =
     custom.customHtml ??
     (stats ? await ensureFreshReadme(project, stats.defaultBranch ?? "main") : null);
@@ -161,13 +179,14 @@ export default async function ProjectPage({ params }: { params: Params }) {
           <div className="stack-8" style={{ minWidth: 0 }}>
             <h1 className="display-m">
               {project.name}
+              {stats?.archived ? (
+                <span className="status-pill is-archived">Archived</span>
+              ) : null}
               {project.claimedById ? (
                 <span className="status-pill is-claimed">
                   <span className="dot" />
-                  Maintained
+                  Verified maintainer
                 </span>
-              ) : stats?.archived ? (
-                <span className="status-pill is-archived">Archived</span>
               ) : null}
             </h1>
             <div className="mono" style={{ color: "var(--muted)" }}>
@@ -231,13 +250,36 @@ export default async function ProjectPage({ params }: { params: Params }) {
             ) : null}
           </div>
         </div>
-        {cats.length > 0 && (
+        {(cats.length > 0 || taxonomy.length > 0) && (
           <div className="cluster">
             {cats.map((c) => (
               <Link key={c.slug} href={`/?category=${c.slug}`} className="tag">
                 {c.name}
               </Link>
             ))}
+            {taxonomy
+              .filter((facet) =>
+                facet.kind === "jurisdiction" ||
+                facet.kind === "subject" ||
+                facet.kind === "process",
+              )
+              .map((facet) => (
+                <Link
+                  key={`${facet.kind}-${facet.slug}`}
+                  href={`/?${
+                    facet.kind === "jurisdiction"
+                      ? "jur"
+                      : facet.kind === "subject"
+                        ? "subject"
+                        : "process"
+                  }=${facet.slug}`}
+                  className="badge badge-neutral"
+                >
+                  {facet.kind === "process"
+                    ? `Process · ${facet.name}`
+                    : facet.name}
+                </Link>
+              ))}
             {stats?.topics.slice(0, 5).map((t) => (
               <span key={t} className="badge badge-neutral">
                 {t}
@@ -448,6 +490,8 @@ export default async function ProjectPage({ params }: { params: Params }) {
           </div>
         </aside>
       </div>
+
+      <ProjectEvidencePanel evidence={evidence} />
 
       <div className="social-grid">
         <section className="social-section">

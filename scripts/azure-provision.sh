@@ -84,7 +84,7 @@ Provisioned. Next steps (manual):
      "audiences":["api://AzureADTokenExchange"]}'
    Then set GitHub secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID,
    AZURE_SUBSCRIPTION_ID, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-   NEXT_PUBLIC_POSTHOG_KEY, BREVO_LIST_ID.
+  BREVO_LIST_ID.
 
 3. Custom domain (tax-oss.com):
    az containerapp hostname add -g $RG -n $APP --hostname tax-oss.com

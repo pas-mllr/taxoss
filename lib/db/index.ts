@@ -9,6 +9,14 @@ import * as schema from "./schema";
 import { CATEGORY_SEED } from "./seed-categories";
 import { FACET_SEED } from "./seed-facets";
 import { STARTER_PROJECTS } from "./starter-projects";
+import { cleanupSeededReviews } from "./p0-cleanup";
+import { ensureEvidenceTables } from "./evidence-schema";
+import { seedMandates } from "./seed-mandates";
+import { seedProjectEvaluations } from "./seed-evaluations";
+import {
+  backfillWorkspaceFacets,
+  ensureWorkspaceTables,
+} from "./workspace-schema";
 
 const DB_PATH =
   process.env.DATABASE_PATH ?? path.join(process.cwd(), "data", "app.db");
@@ -51,10 +59,13 @@ function createDb() {
     }
   }
   ensureAdditiveColumns(sqlite);
+  ensureEvidenceTables(sqlite);
+  ensureWorkspaceTables(sqlite);
+  cleanupSeededReviews(sqlite);
   // Idempotent on every boot: category upserts are no-ops once present, and
   // the starter seed exits early unless the index is empty (so a rate-limited
   // first boot retries on the next cold start).
-  bootstrapSeed(database);
+  bootstrapSeed(database, sqlite);
   return database;
 }
 
@@ -147,7 +158,7 @@ function ensureAdditiveColumns(sqlite: Database.Database) {
 
 type Db = ReturnType<typeof createDb>;
 
-function bootstrapSeed(database: Db) {
+function bootstrapSeed(database: Db, sqlite: Database.Database) {
   for (const [i, c] of CATEGORY_SEED.entries()) {
     // Upsert so taxonomy renames/reorders reach existing databases on deploy.
     database
@@ -169,15 +180,18 @@ function bootstrapSeed(database: Db) {
       })
       .run();
   }
+  backfillWorkspaceFacets(sqlite);
+  seedMandates(database);
+  seedProjectEvaluations(database);
   if (process.env.SEED_STARTERS === "1") {
     // Fire-and-forget: pulls real repos from the GitHub API on first boot.
-    void seedStarters(database).catch((err) =>
+    void seedStarters(database, sqlite).catch((err) =>
       console.error("starter seed failed:", err),
     );
   }
 }
 
-async function seedStarters(database: Db) {
+async function seedStarters(database: Db, sqlite: Database.Database) {
   const existing = database.select().from(schema.projects).limit(1).all();
   if (existing.length > 0) return;
 
@@ -191,16 +205,20 @@ async function seedStarters(database: Db) {
   }
 
   for (const starter of STARTER_PROJECTS) {
-    const res = await fetch(`https://api.github.com/repos/${starter.repo}`, {
-      headers,
-    });
-    if (!res.ok) {
-      console.error(`starter seed: GitHub ${res.status} for ${starter.repo}`);
-      continue;
-    }
-    const d = await res.json();
-    const key = String(d.full_name).toLowerCase();
     try {
+      const res = await fetch(`https://api.github.com/repos/${starter.repo}`, {
+        headers,
+      });
+      if (!res.ok) {
+        console.error(`starter seed: GitHub ${res.status} for ${starter.repo}`);
+        continue;
+      }
+      const d = await res.json();
+      if (d.archived) {
+        console.error(`starter seed: skipped archived repository ${d.full_name}`);
+        continue;
+      }
+      const key = String(d.full_name).toLowerCase();
       const inserted = database
         .insert(schema.projects)
         .values({
@@ -253,6 +271,8 @@ async function seedStarters(database: Db) {
       console.error(`starter seed: failed for ${starter.repo}:`, err);
     }
   }
+  backfillWorkspaceFacets(sqlite);
+  seedProjectEvaluations(database);
 }
 
 // Reuse the connection across dev hot reloads.

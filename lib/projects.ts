@@ -81,6 +81,8 @@ export async function listProjects(opts: {
   jurisdiction?: string;
   /** Filter to a tax-subject facet slug, e.g. "vat-gst-sales". */
   subject?: string;
+  /** Filter to a process facet slug, e.g. "validate". */
+  process?: string;
   q?: string;
   sort?: SortKey;
   /** Only projects pushed within ACTIVE_WINDOW_DAYS. */
@@ -103,6 +105,7 @@ export async function listProjects(opts: {
     categorySlug,
     jurisdiction,
     subject,
+    process,
     q,
     sort = "site-stars",
     activeOnly = false,
@@ -148,6 +151,7 @@ export async function listProjects(opts: {
   for (const [kind, slug] of [
     ["jurisdiction", jurisdiction],
     ["subject", subject],
+    ["process", process],
   ] as const) {
     if (!slug) continue;
     conds.push(
@@ -204,6 +208,7 @@ export async function listProjects(opts: {
   }
   if (activeOnly) {
     conds.push(
+      eq(projectStats.archived, false),
       gte(
         projectStats.pushedAt,
         new Date(Date.now() - ACTIVE_WINDOW_DAYS * 24 * 60 * 60 * 1000),
@@ -216,7 +221,11 @@ export async function listProjects(opts: {
     // rank in a single list.
     stars: [desc(projectStats.stars), desc(projectStats.downloads)],
     "site-stars": [desc(sql`coalesce(${siteStarAgg.n}, 0)`), desc(projectStats.stars)],
-    rating: [desc(sql`coalesce(${reviewAgg.avg}, 0)`), desc(sql`coalesce(${reviewAgg.n}, 0)`)],
+    rating: [
+      desc(sql`coalesce(${reviewAgg.avg}, 0)`),
+      desc(sql`coalesce(${reviewAgg.n}, 0)`),
+      desc(projectStats.stars),
+    ],
     newest: [desc(projects.createdAt)],
     active: [desc(projectStats.pushedAt)],
     // Most recently starred first, so a reading list reads like one.
@@ -347,7 +356,12 @@ export async function listFeaturedProjects(limit = 6): Promise<FeaturedProject[]
     })
     .from(projects)
     .leftJoin(projectStats, eq(projectStats.projectId, projects.id))
-    .where(eq(projects.featured, true))
+    .where(
+      and(
+        eq(projects.featured, true),
+        sql`coalesce(${projectStats.archived}, 0) = 0`,
+      ),
+    )
     .orderBy(desc(projects.featuredAt))
     .limit(limit);
 

@@ -16,9 +16,17 @@ const BANDS: { key: HealthKey; label: string; maxDays: number; hint: string }[] 
   { key: "stale", label: "Stale", maxDays: Infinity, hint: "no push in over 18 months" },
 ];
 
-export function projectHealth(pushedAt: Date | null) {
+export function projectHealth(pushedAt: Date | null, observedAt = Date.now()) {
   if (!pushedAt) return null;
-  const days = (Date.now() - pushedAt.getTime()) / DAY;
+  const days = (observedAt - pushedAt.getTime()) / DAY;
   const band = BANDS.find((b) => days <= b.maxDays) ?? BANDS[BANDS.length - 1];
   return { ...band, title: `${band.label} — ${band.hint}` };
+}
+
+export function isProjectActive(
+  pushedAt: Date | null,
+  archived: boolean,
+  observedAt = Date.now(),
+): boolean {
+  return !archived && projectHealth(pushedAt, observedAt)?.key === "active";
 }

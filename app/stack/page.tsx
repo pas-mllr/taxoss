@@ -3,9 +3,11 @@ import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { categories, projectCategories, projects, projectStats } from "@/lib/db/schema";
-import { ACTIVE_WINDOW_DAYS } from "@/lib/projects";
 import { formatCount } from "@/lib/format";
-import { EVAL_POINTS, MANDATES, STACK_SECTIONS } from "@/lib/stack";
+import { isProjectActive } from "@/lib/health";
+import { listMandates } from "@/lib/mandate-data";
+import { EVAL_POINTS, STACK_SECTIONS } from "@/lib/stack";
+import { formatDateOnly } from "@/lib/time";
 import { IconArrowRight } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "The Stack",
   description:
-    "The open-source tax stack, explained: e-invoicing mandates, AI without data leaving the building, tax engines, filing tools, and law as data — with the projects that cover each.",
+    "The open-source tax stack, explained: e-invoicing mandates, inspectable AI data flows, tax engines, filing tools, and law as data — with the projects that cover each.",
 };
 
 type CatCard = {
@@ -28,7 +30,7 @@ type CatCard = {
 const PERSONAS = [
   {
     title: "I lead a tax function",
-    body: "Your next board question is on this page: the compliance calendar, and an AI plan that keeps data in-house.",
+    body: "Your next board question is on this page: the compliance calendar, and an AI plan with inspectable data flows.",
     links: [
       { href: "#calendar", label: "The calendar" },
       { href: "#ai", label: "The AI stack" },
@@ -53,7 +55,7 @@ const PERSONAS = [
 ];
 
 export default async function StackPage() {
-  const [cats, rows] = await Promise.all([
+  const [cats, rows, mandateRows] = await Promise.all([
     db
       .select({
         id: categories.id,
@@ -69,13 +71,14 @@ export default async function StackPage() {
         name: projects.name,
         stars: projectStats.stars,
         pushedAt: projectStats.pushedAt,
+        archived: projectStats.archived,
       })
       .from(projectCategories)
       .innerJoin(projects, eq(projects.id, projectCategories.projectId))
       .leftJoin(projectStats, eq(projectStats.projectId, projects.id)),
+    listMandates(),
   ]);
 
-  const activeCutoff = Date.now() - ACTIVE_WINDOW_DAYS * 86_400_000;
   const byCat = new Map<number, CatCard>();
   for (const c of cats) {
     byCat.set(c.id, { slug: c.slug, name: c.name, blurb: c.blurb, count: 0, active: 0, top: [] });
@@ -84,8 +87,8 @@ export default async function StackPage() {
     const c = byCat.get(r.categoryId);
     if (!c) continue;
     c.count += 1;
-    if (r.pushedAt && r.pushedAt.getTime() >= activeCutoff) c.active += 1;
-    c.top.push({ name: r.name, stars: r.stars ?? 0 });
+    if (isProjectActive(r.pushedAt, Boolean(r.archived))) c.active += 1;
+    if (!r.archived) c.top.push({ name: r.name, stars: r.stars ?? 0 });
   }
   for (const c of byCat.values()) {
     c.top.sort((a, b) => b.stars - a.stars);
@@ -147,7 +150,7 @@ export default async function StackPage() {
         <p className="body-l" style={{ maxWidth: 620 }}>
           Not just a directory — a map. What open source covers in tax,
           organized by the problems tax teams actually face: mandates to meet,
-          AI to deploy without data leaving the building, tax to compute,
+          AI to deploy with inspectable data flows, tax to compute,
           returns to file, and law to understand.
         </p>
       </div>
@@ -178,28 +181,59 @@ export default async function StackPage() {
             Every entry links to the open tooling for that jurisdiction.
           </p>
           <div>
-            {MANDATES.map((m) => (
-              <div className="entry" key={`${m.jur}-${m.name}`}>
+            {mandateRows.map((mandate) => (
+              <div className="entry" key={mandate.id}>
                 <div className="entry-body">
                   <div className="entry-head">
                     <span
-                      className={`badge ${m.status === "live" ? "badge-success" : "badge-neutral"}`}
+                      className={`badge ${
+                        mandate.lifecycle === "in-force"
+                          ? "badge-success"
+                          : mandate.lifecycle === "phased"
+                            ? "badge-accent"
+                            : "badge-neutral"
+                      }`}
                     >
-                      {m.status === "live" ? "In force" : "Ahead"}
+                      {mandate.lifecycle}
                     </span>
                     <Link
-                      href={`/jurisdictions/${m.jur}`}
+                      href={`/jurisdictions/${mandate.jurisdictionSlug}`}
                       className="entry-author"
                       style={{ color: "var(--ink-deep)" }}
                     >
-                      {m.jurLabel}
+                      {mandate.jurisdictionName}
                     </Link>
-                    <span className="mono accent">{m.name}</span>
-                    <span className="entry-date">{m.when}</span>
+                    <Link href={`/mandates/${mandate.slug}`} className="mono accent">
+                      {mandate.name}
+                    </Link>
                   </div>
                   <p className="entry-text" style={{ marginTop: 4 }}>
-                    {m.note}
+                    {mandate.summary}
                   </p>
+                  <p className="form-hint" style={{ marginTop: 6 }}>
+                    {mandate.phases
+                      .slice(0, 3)
+                      .map(
+                        (phase) =>
+                          `${formatDateOnly(phase.effectiveFrom)} · ${phase.label}`,
+                      )
+                      .join("  ·  ")}
+                  </p>
+                  <div className="cluster" style={{ marginTop: 8 }}>
+                    <span className="entry-date">
+                      Review {mandate.reviewState}
+                      {mandate.lastReviewedAt
+                        ? ` · ${mandate.lastReviewedAt.toISOString().slice(0, 10)}`
+                        : ""}
+                    </span>
+                    <Link
+                      href={`/mandates/${mandate.slug}`}
+                      className="accent mono"
+                      style={{ fontSize: 11.5 }}
+                    >
+                      Scope, exceptions & sources →
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

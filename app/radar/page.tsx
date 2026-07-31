@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { desc, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   categories,
@@ -11,8 +11,9 @@ import {
   projects,
   projectStats,
 } from "@/lib/db/schema";
-import { MILESTONES } from "@/lib/stack";
+import { listMandates } from "@/lib/mandate-data";
 import { projectHref } from "@/lib/sources";
+import { dateDaysAgo, daysUntilDateOnly, formatDateOnly } from "@/lib/time";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 export const dynamic = "force-dynamic";
@@ -36,10 +37,6 @@ function ago(date: Date): string {
   return `${months}mo ago`;
 }
 
-function daysUntil(iso: string): number {
-  return Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
-}
-
 function countdown(days: number): string {
   if (days <= 45) return `${days} days`;
   if (days <= 540) return `${Math.round(days / 30.4)} months`;
@@ -47,11 +44,11 @@ function countdown(days: number): string {
 }
 
 export default async function RadarPage() {
-  const releaseCutoff = new Date(Date.now() - RELEASE_WINDOW_DAYS * 86_400_000);
-  const newCutoff = new Date(Date.now() - NEW_WINDOW_DAYS * 86_400_000);
-  const cadenceCutoff = new Date(Date.now() - CADENCE_WINDOW_DAYS * 86_400_000);
+  const releaseCutoff = dateDaysAgo(RELEASE_WINDOW_DAYS);
+  const newCutoff = dateDaysAgo(NEW_WINDOW_DAYS);
+  const cadenceCutoff = dateDaysAgo(CADENCE_WINDOW_DAYS);
 
-  const [releases, fresh, cadenceRows] = await Promise.all([
+  const [releases, fresh, cadenceRows, mandateRows] = await Promise.all([
     db
       .select({
         projectId: projectReleases.projectId,
@@ -67,7 +64,13 @@ export default async function RadarPage() {
       })
       .from(projectReleases)
       .innerJoin(projects, eq(projects.id, projectReleases.projectId))
-      .where(gte(projectReleases.publishedAt, releaseCutoff))
+      .leftJoin(projectStats, eq(projectStats.projectId, projects.id))
+      .where(
+        and(
+          gte(projectReleases.publishedAt, releaseCutoff),
+          sql`coalesce(${projectStats.archived}, 0) = 0`,
+        ),
+      )
       .orderBy(desc(projectReleases.publishedAt))
       .limit(30),
     db
@@ -83,7 +86,12 @@ export default async function RadarPage() {
       })
       .from(projects)
       .leftJoin(projectStats, eq(projectStats.projectId, projects.id))
-      .where(gte(projects.createdAt, newCutoff))
+      .where(
+        and(
+          gte(projects.createdAt, newCutoff),
+          sql`coalesce(${projectStats.archived}, 0) = 0`,
+        ),
+      )
       .orderBy(desc(projects.createdAt))
       .limit(12),
     db
@@ -93,7 +101,14 @@ export default async function RadarPage() {
         publishedAt: projectReleases.publishedAt,
       })
       .from(projectReleases)
-      .where(gte(projectReleases.publishedAt, cadenceCutoff)),
+      .leftJoin(projectStats, eq(projectStats.projectId, projectReleases.projectId))
+      .where(
+        and(
+          gte(projectReleases.publishedAt, cadenceCutoff),
+          sql`coalesce(${projectStats.archived}, 0) = 0`,
+        ),
+      ),
+    listMandates(),
   ]);
 
   // Steady shippers: release count over the cadence window beats a bare
@@ -178,9 +193,24 @@ export default async function RadarPage() {
     );
   };
 
-  const upcoming = MILESTONES.map((m) => ({ ...m, days: daysUntil(m.date) }))
-    .filter((m) => m.days > 0)
-    .sort((a, b) => a.days - b.days);
+  const upcoming = mandateRows
+    .flatMap((mandate) =>
+      mandate.phases.map((phase) => ({
+        mandateId: mandate.id,
+        mandateSlug: mandate.slug,
+        jur: mandate.jurisdictionSlug,
+        jurLabel: mandate.jurisdictionName,
+        date: phase.effectiveFrom,
+        label: phase.label,
+        scope: phase.scope,
+        reviewState: mandate.reviewState,
+        reviewedAt: mandate.lastReviewedAt,
+        days: daysUntilDateOnly(phase.effectiveFrom),
+      })),
+    )
+    .filter((phase) => phase.days > 0)
+    .sort((left, right) => left.days - right.days)
+    .slice(0, 10);
   const shippedProjects = new Set(releases.map((r) => r.projectId)).size;
 
   return (
@@ -225,31 +255,45 @@ export default async function RadarPage() {
             The dated obligations ahead, nearest first. Each one links to the
             open tooling for that jurisdiction.
           </p>
-          {upcoming.map((m) => (
-            <div className="entry" key={`${m.jur}-${m.date}`}>
+          {upcoming.map((phase) => (
+            <div
+              className="entry"
+              key={`${phase.mandateId}-${phase.date}-${phase.label}`}
+            >
               <div className="entry-body">
                 <div className="entry-head">
                   <span className="numeral" style={{ fontWeight: 600, color: "var(--vermilion-700)" }}>
-                    {countdown(m.days)}
+                    {countdown(phase.days)}
                   </span>
                   <Link
-                    href={`/jurisdictions/${m.jur}`}
+                    href={`/jurisdictions/${phase.jur}`}
                     className="entry-author"
                     style={{ color: "var(--ink-deep)" }}
                   >
-                    {m.jurLabel}
+                    {phase.jurLabel}
                   </Link>
                   <span className="entry-date">
-                    {new Date(m.date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                    {formatDateOnly(phase.date)}
                   </span>
                 </div>
                 <p className="entry-text" style={{ marginTop: 4 }}>
-                  {m.label}
+                  <strong>{phase.label}.</strong> {phase.scope}
                 </p>
+                <div className="cluster" style={{ marginTop: 8 }}>
+                  <span className="entry-date">
+                    Review {phase.reviewState}
+                    {phase.reviewedAt
+                      ? ` · ${phase.reviewedAt.toISOString().slice(0, 10)}`
+                      : ""}
+                  </span>
+                  <Link
+                    href={`/mandates/${phase.mandateSlug}`}
+                    className="accent mono"
+                    style={{ fontSize: 11.5 }}
+                  >
+                    Scope, exceptions & sources →
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

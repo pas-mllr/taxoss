@@ -71,7 +71,7 @@ export function SiteHeader({
                 href="/my-projects"
                 className={pathname.startsWith("/my-projects") ? "is-current" : ""}
               >
-                My Projects
+                Workspace
               </Link>
             </Show>
             {isAdmin && (
@@ -147,7 +147,7 @@ export function SiteHeader({
         ))}
         <Show when="signed-in">
           <Link href="/my-projects" onClick={() => setDrawerOpen(false)}>
-            My Projects
+            Workspace
           </Link>
         </Show>
         {isAdmin && (

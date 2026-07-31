@@ -38,18 +38,18 @@ export const THESES: Thesis[] = [
     id: "authority-code",
     title: "When the authority ships code, an ecosystem follows",
     paragraphs: [
-      "The deepest jurisdiction in this index is the United States — anchored by the most consequential release in tax open source: the IRS publishing Direct File, the federal filing system itself. Poland's Ministry of Finance maintains official KSeF API tooling on GitHub, and community clients formed around it within months. France's OpenFisca began as state-adjacent infrastructure and became the world's most-forked rules-as-code framework, with country packages from New Zealand to Tunisia.",
+      "The deepest jurisdiction in this index is the United States, shaped in part by the IRS publishing the Tax Year 2024 Direct File code. That repository is now archived and explicitly unsuitable for production, but remains a consequential historical reference. Poland's Ministry of Finance maintains official KSeF API tooling on GitHub, and community clients formed around it within months. France's OpenFisca began as state-adjacent infrastructure and became the world's most-forked rules-as-code framework, with country packages from New Zealand to Tunisia.",
       "Now look at Germany: an energetic community — ELSTER bindings, MCP servers, payroll rules-as-code, a fine-tuned tax LLM — permanently capped by one closed component, the ERiC submission library. The community's response is telling: Rust bindings around the binary, browser automation around the portal. The same pattern holds in Turkey, where open clients track undocumented government portals, and the Netherlands, where filing tooling simply stops.",
       "The comparison is a controlled experiment, and the result reads like policy advice: authorities that publish reference implementations multiply private compliance investment; authorities that keep the core closed convert that same energy into reverse-engineering.",
     ],
     takeaways: [
       {
         audience: "If you're a tax authority",
-        text: "Direct File and KSeF are the precedent: publishing code is no longer exotic. A reference implementation is the cheapest compliance-improvement program you can run.",
+        text: "Direct File and KSeF show that publishing code is no longer exotic. A reference implementation can accelerate compliance tooling, provided its maintenance lifecycle and intended use are explicit.",
       },
       {
         audience: "If you run a tax function",
-        text: "Authority-published code is a different trust class — treat it as such in procurement, and watch which of your jurisdictions move this way.",
+        text: "Treat authority authorship as provenance evidence, not production approval. Verify current maintenance, legal scope, security, support, and intended use separately.",
       },
     ],
   },
@@ -64,7 +64,7 @@ export const THESES: Thesis[] = [
     takeaways: [
       {
         audience: "If you run a tax function",
-        text: "Your AI pilot layer can be open and self-hosted even while your core stack stays vendor — that combination keeps client data in-house and your options open.",
+        text: "Your AI pilot layer can be open and self-hosted even while your core stack stays vendor. Confirm every model endpoint, connector, log, and telemetry path before concluding that data stays in-house.",
       },
       {
         audience: "If you advise clients",
@@ -87,7 +87,7 @@ export const THESES: Thesis[] = [
       },
       {
         audience: "If you're a vendor",
-        text: "The open layer underneath you is growing government-grade anchors. The durable position is building on and contributing to it, not pretending it isn't there.",
+        text: "The open layer underneath you is gaining authority-published anchors. The durable position is building on and contributing to useful shared infrastructure without overstating what provenance guarantees.",
       },
     ],
   },
@@ -97,7 +97,7 @@ export const THESES: Thesis[] = [
     paragraphs: [
       "Count the index by function and a lopsided picture appears: calculation engines, format libraries, and validators vastly outnumber tools that actually file. The scarcity is not for lack of demand — personal filing is the most-wanted tax software on earth. It's the channel: in most jurisdictions the submission interface is closed, certified, or simply absent.",
       "The workarounds are the diagnosis. Japan's leading open filing tool drives the e-Tax website by browser automation. An American MCP server fills in a commercial filing product the same way. Germany's ecosystem wraps a closed binary it cannot see inside. When skilled engineers resort to scripting government websites, the message isn't ingenuity — it's that the front door is locked.",
-      "The one place the door opened — the IRS releasing Direct File — instantly produced the deepest open filing lineage in the world. Every closed filing API is a natural experiment in what an ecosystem would build if it could.",
+      "When the IRS released Direct File, it exposed unusually deep filing architecture and tax logic for public study. The code is now archived rather than a production option, but it still shows what an ecosystem can learn when a filing implementation is opened.",
     ],
     takeaways: [
       {

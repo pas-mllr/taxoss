@@ -5,12 +5,13 @@ import { categories, projects, projectStats } from "@/lib/db/schema";
 import { SITE_URL } from "@/lib/site";
 import { projectHref } from "@/lib/sources";
 import { JURISDICTION_CONTENT } from "@/lib/jurisdictions";
+import { listMandates } from "@/lib/mandate-data";
 
 export const dynamic = "force-dynamic";
 
 /** DB-driven sitemap: every project page plus the browsing surfaces. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [projectRows, categoryRows] = await Promise.all([
+  const [projectRows, categoryRows, mandateRows] = await Promise.all([
     db
       .select({
         source: projects.source,
@@ -23,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from(projects)
       .leftJoin(projectStats, eq(projectStats.projectId, projects.id)),
     db.select({ slug: categories.slug }).from(categories),
+    listMandates(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -31,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/insights`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/jurisdictions`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${SITE_URL}/methodology`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/radar`, changeFrequency: "daily", priority: 0.5 },
     { url: `${SITE_URL}/mcp`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/submit`, changeFrequency: "monthly", priority: 0.4 },
@@ -51,6 +54,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const mandateEntries: MetadataRoute.Sitemap = mandateRows.map((mandate) => ({
+    url: `${SITE_URL}/mandates/${mandate.slug}`,
+    lastModified: mandate.updatedAt,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   const projectEntries: MetadataRoute.Sitemap = projectRows.map((p) => ({
     url: `${SITE_URL}${projectHref(p)}`,
     lastModified: p.pushedAt ?? p.updatedAt,
@@ -58,5 +68,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticEntries, ...categoryEntries, ...jurisdictionEntries, ...projectEntries];
+  return [
+    ...staticEntries,
+    ...categoryEntries,
+    ...jurisdictionEntries,
+    ...mandateEntries,
+    ...projectEntries,
+  ];
 }

@@ -30,7 +30,7 @@ export default function McpPage() {
             TaxOSS speaks the Model Context Protocol. Point any MCP client at
             one URL and your agent can search {""}
             open-source tax software by category, jurisdiction, and tax
-            subject — the same index as this site, structured for tools.
+            domain — the same public index as this site, structured for tools.
             Read-only, no API key, free.
           </p>
         </div>
@@ -67,13 +67,13 @@ export default function McpPage() {
             <div className="kv">
               <span className="k mono">search_projects</span>
               <span className="v" style={{ fontFamily: "var(--font-sans)", textAlign: "right" }}>
-                Free text + category, jurisdiction, and tax-subject filters
+                Free text + category, jurisdiction, and tax-domain filters
               </span>
             </div>
             <div className="kv">
               <span className="k mono">get_project</span>
               <span className="v" style={{ fontFamily: "var(--font-sans)", textAlign: "right" }}>
-                Full record for one project, by owner/name or HF URL
+                Full record, evidence signals, rubric, and mandate relationships
               </span>
             </div>
             <div className="kv">
@@ -85,7 +85,19 @@ export default function McpPage() {
             <div className="kv">
               <span className="k mono">list_facets</span>
               <span className="v" style={{ fontFamily: "var(--font-sans)", textAlign: "right" }}>
-                19 jurisdictions and 12 tax subjects, with counts
+                19 jurisdictions, 17 tax domains, and 9 process stages, with counts
+              </span>
+            </div>
+            <div className="kv">
+              <span className="k mono">list_mandates</span>
+              <span className="v" style={{ fontFamily: "var(--font-sans)", textAlign: "right" }}>
+                Source-backed mandate records, filterable by jurisdiction and review state
+              </span>
+            </div>
+            <div className="kv">
+              <span className="k mono">get_mandate</span>
+              <span className="v" style={{ fontFamily: "var(--font-sans)", textAlign: "right" }}>
+                Legal basis, phases, scope, exceptions, sources, and review metadata
               </span>
             </div>
           </div>
@@ -102,6 +114,8 @@ export default function McpPage() {
         </div>
 
         <p className="body-s">
+          Private Workspace scope, notes, decisions, comparisons, and exports are
+          never exposed through MCP. {""}
           The index itself lists {""}
           <Link href="/?category=mcp-servers" className="accent">
             tax MCP servers

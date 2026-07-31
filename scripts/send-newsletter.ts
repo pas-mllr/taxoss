@@ -13,7 +13,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { buildIssue, sendCampaign, type IssueProject } from "../lib/newsletter";
 import * as schema from "../lib/db/schema";
@@ -57,6 +57,7 @@ async function main() {
       and(
         eq(schema.projects.featured, true),
         isNull(schema.projects.featuredAnnouncedAt),
+        sql`coalesce(${schema.projectStats.archived}, 0) = 0`,
       ),
     );
 

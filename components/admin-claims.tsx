@@ -8,6 +8,10 @@ import type { AdminProjectRow } from "@/lib/projects";
 import type { Member } from "@/lib/users";
 import { sourceLabel } from "@/lib/sources";
 import { IconSearch, IconShield, IconTrash } from "@/components/icons";
+import {
+  AdminSearchPicker,
+  type AdminPickerOption,
+} from "@/components/admin-search-picker";
 
 function claimantLabel(p: AdminProjectRow): string {
   return p.claimantName ?? p.claimantUsername ?? p.claimedById ?? "someone";
@@ -15,147 +19,6 @@ function claimantLabel(p: AdminProjectRow): string {
 
 function day(d: Date): string {
   return d.toISOString().slice(0, 10);
-}
-
-type PickerOption = { value: string; label: string; hint?: string };
-
-const PICKER_MAX = 40;
-
-/**
- * Search-as-you-type replacement for a <select> with hundreds of options.
- * Type to filter, click or Enter to choose; the chosen option collapses to a
- * single line with a Change button.
- */
-function SearchPicker({
-  id,
-  placeholder,
-  options,
-  value,
-  onChange,
-}: {
-  id: string;
-  placeholder: string;
-  options: PickerOption[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const selected = options.find((o) => o.value === value) ?? null;
-
-  const matches = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return options;
-    return options.filter((o) =>
-      `${o.label} ${o.hint ?? ""}`.toLowerCase().includes(needle),
-    );
-  }, [options, query]);
-  const shown = matches.slice(0, PICKER_MAX);
-
-  function pick(v: string) {
-    onChange(v);
-    setQuery("");
-    setOpen(false);
-  }
-
-  if (selected) {
-    return (
-      <div className="field picker-chosen">
-        <span className="pc-label" title={selected.label}>
-          {selected.label}
-        </span>
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm"
-          onClick={() => {
-            onChange("");
-            // Re-open in search mode so swapping the pick is one click.
-            setOpen(true);
-            setTimeout(() => inputRef.current?.focus(), 0);
-          }}
-        >
-          Change
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="picker">
-      <div className="field">
-        <IconSearch />
-        <input
-          ref={inputRef}
-          id={id}
-          type="text"
-          role="combobox"
-          aria-expanded={open}
-          aria-controls={`${id}-list`}
-          aria-autocomplete="list"
-          autoComplete="off"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setActive(0);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => {
-            // Delay so a mousedown on an option lands before the list closes.
-            setTimeout(() => setOpen(false), 120);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              setActive((a) => Math.min(a + 1, shown.length - 1));
-            } else if (e.key === "ArrowUp") {
-              e.preventDefault();
-              setActive((a) => Math.max(a - 1, 0));
-            } else if (e.key === "Enter") {
-              e.preventDefault();
-              if (shown[active]) pick(shown[active].value);
-            } else if (e.key === "Escape") {
-              setOpen(false);
-            }
-          }}
-        />
-      </div>
-      {open && (
-        <div className="picker-list" id={`${id}-list`} role="listbox">
-          {shown.length === 0 ? (
-            <div className="picker-note">No match.</div>
-          ) : (
-            shown.map((o, i) => (
-              <button
-                key={o.value}
-                type="button"
-                role="option"
-                aria-selected={i === active}
-                className={`picker-item${i === active ? " is-active" : ""}`}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  pick(o.value);
-                }}
-                onMouseEnter={() => setActive(i)}
-              >
-                <span>{o.label}</span>
-                {o.hint && <span className="pi-hint">{o.hint}</span>}
-              </button>
-            ))
-          )}
-          {matches.length > shown.length && (
-            <div className="picker-note">
-              {matches.length - shown.length} more — keep typing to narrow down.
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
 }
 
 const TABLE_PAGE = 50;
@@ -206,7 +69,7 @@ export function AdminClaims({
     [claimed],
   );
 
-  const projectOptions = useMemo<PickerOption[]>(
+  const projectOptions = useMemo<AdminPickerOption[]>(
     () =>
       projects.map((p) => ({
         value: String(p.id),
@@ -217,7 +80,7 @@ export function AdminClaims({
       })),
     [projects],
   );
-  const memberOptions = useMemo<PickerOption[]>(
+  const memberOptions = useMemo<AdminPickerOption[]>(
     () => members.map((m) => ({ value: m.id, label: m.label })),
     [members],
   );
@@ -327,7 +190,7 @@ export function AdminClaims({
             <label className="form-label" htmlFor="admin-project">
               Project
             </label>
-            <SearchPicker
+            <AdminSearchPicker
               id="admin-project"
               placeholder="Search projects by owner or name…"
               options={projectOptions}
@@ -346,7 +209,7 @@ export function AdminClaims({
             <label className="form-label" htmlFor="admin-member">
               Grant to
             </label>
-            <SearchPicker
+            <AdminSearchPicker
               id="admin-member"
               placeholder="Search members by name or email…"
               options={memberOptions}

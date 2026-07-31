@@ -46,6 +46,7 @@ export default async function HomePage({
   const category = typeof params.category === "string" ? params.category : undefined;
   const jurisdiction = typeof params.jur === "string" ? params.jur : undefined;
   const subject = typeof params.subject === "string" ? params.subject : undefined;
+  const process = typeof params.process === "string" ? params.process : undefined;
   const activeOnly = params.active === "1";
   const sortParam = typeof params.sort === "string" ? params.sort : DEFAULT_SORT;
   const sort = (VALID_SORTS as string[]).includes(sortParam)
@@ -55,7 +56,16 @@ export default async function HomePage({
   const requestedPage = Math.max(1, Number(params.page) || 1);
 
   const { userId } = await auth();
-  const filters = { q, categorySlug: category, jurisdiction, subject, sort, activeOnly, userId };
+  const filters = {
+    q,
+    categorySlug: category,
+    jurisdiction,
+    subject,
+    process,
+    sort,
+    activeOnly,
+    userId,
+  };
 
   const [firstTry, cats, facetRows, featured] = await Promise.all([
     listProjects({ ...filters, limit: PER_PAGE, offset: (requestedPage - 1) * PER_PAGE }),
@@ -76,6 +86,7 @@ export default async function HomePage({
   const activeCat = cats.find((c) => c.slug === category);
   const jurisdictions = facetRows.filter((f) => f.kind === "jurisdiction");
   const subjects = facetRows.filter((f) => f.kind === "subject");
+  const processes = facetRows.filter((f) => f.kind === "process");
 
   // A page past the end (stale link, or a filter narrowed since) lands on the
   // last real page instead of an empty grid. The total rides along with the
@@ -114,7 +125,7 @@ export default async function HomePage({
         </div>
         <p className="body-l" style={{ maxWidth: 620 }}>
           {activeCat?.blurb ??
-            "Every project is a real GitHub repository, stats refreshed from the source. One listing per repo, reviewed by the community, claimed by its maintainer."}
+            "Every project is a real public repository, with stats refreshed from the source. Members can review projects, and maintainers can verify ownership of their pages."}
         </p>
       </div>
 
@@ -125,6 +136,7 @@ export default async function HomePage({
           categories={cats}
           jurisdictions={jurisdictions}
           subjects={subjects}
+          processes={processes}
         />
       </Suspense>
 

@@ -38,8 +38,6 @@ jobs:
             --registry "$ACR_NAME" \
             --image "$IMAGE_REPO:${{ github.sha }}" \
             --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_HOST="https://eu.i.posthog.com" \
             .
 
       # SEED_STARTERS=1 is idempotent: the starter seed exits early once any

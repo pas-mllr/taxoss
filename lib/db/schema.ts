@@ -180,6 +180,259 @@ export const projectFacets = sqliteTable(
   (t) => [primaryKey({ columns: [t.projectId, t.facetId] })],
 );
 
+/** One private multinational workspace per user. */
+export const portfolios = sqliteTable(
+  "portfolios",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull().default("My tax portfolio"),
+    description: text("description"),
+    version: integer("version").notNull().default(1),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("portfolios_user_unique").on(t.userId)],
+);
+
+export const portfolioScopeFacets = sqliteTable(
+  "portfolio_scope_facets",
+  {
+    portfolioId: integer("portfolio_id")
+      .notNull()
+      .references(() => portfolios.id, { onDelete: "cascade" }),
+    facetId: integer("facet_id")
+      .notNull()
+      .references(() => facets.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.portfolioId, t.facetId] }),
+    index("portfolio_scope_facets_facet_idx").on(t.facetId),
+  ],
+);
+
+export const portfolioProjects = sqliteTable(
+  "portfolio_projects",
+  {
+    portfolioId: integer("portfolio_id")
+      .notNull()
+      .references(() => portfolios.id, { onDelete: "cascade" }),
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    decisionState: text("decision_state").notNull().default("candidate"),
+    notes: text("notes"),
+    version: integer("version").notNull().default(1),
+    removedAt: integer("removed_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.portfolioId, t.projectId] }),
+    index("portfolio_projects_project_idx").on(t.projectId),
+  ],
+);
+
+/** Admin-reviewed regulatory obligation with phased dates and primary sources. */
+export const mandates = sqliteTable(
+  "mandates",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    slug: text("slug").notNull(),
+    jurisdictionFacetId: integer("jurisdiction_facet_id")
+      .notNull()
+      .references(() => facets.id),
+    name: text("name").notNull(),
+    summary: text("summary").notNull(),
+    legalBasis: text("legal_basis"),
+    scope: text("scope").notNull(),
+    exceptions: text("exceptions").notNull(),
+    lifecycle: text("lifecycle").notNull().default("ahead"),
+    status: text("status").notNull().default("draft"),
+    reviewerId: text("reviewer_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reviewerName: text("reviewer_name"),
+    lastReviewedAt: integer("last_reviewed_at", { mode: "timestamp" }),
+    reviewDueAt: integer("review_due_at", { mode: "timestamp" }),
+    publishedAt: integer("published_at", { mode: "timestamp" }),
+    version: integer("version").notNull().default(1),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("mandates_slug_unique").on(t.slug),
+    index("mandates_jurisdiction_idx").on(t.jurisdictionFacetId),
+    index("mandates_status_idx").on(t.status),
+    index("mandates_review_due_idx").on(t.reviewDueAt),
+  ],
+);
+
+export const mandatePhases = sqliteTable(
+  "mandate_phases",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    mandateId: integer("mandate_id")
+      .notNull()
+      .references(() => mandates.id, { onDelete: "cascade" }),
+    slug: text("slug").notNull(),
+    label: text("label").notNull(),
+    phaseType: text("phase_type").notNull().default("obligation"),
+    /** Date-only ISO value (YYYY-MM-DD), intentionally not a timestamp. */
+    effectiveFrom: text("effective_from").notNull(),
+    effectiveTo: text("effective_to"),
+    scope: text("scope").notNull(),
+    exceptions: text("exceptions").notNull(),
+    sort: integer("sort").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("mandate_phases_mandate_slug_unique").on(t.mandateId, t.slug),
+    index("mandate_phases_mandate_idx").on(t.mandateId),
+    index("mandate_phases_effective_idx").on(t.effectiveFrom),
+  ],
+);
+
+export const mandateSources = sqliteTable(
+  "mandate_sources",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    mandateId: integer("mandate_id")
+      .notNull()
+      .references(() => mandates.id, { onDelete: "cascade" }),
+    phaseId: integer("phase_id").references(() => mandatePhases.id, {
+      onDelete: "cascade",
+    }),
+    kind: text("kind").notNull().default("primary"),
+    title: text("title").notNull(),
+    publisher: text("publisher").notNull(),
+    url: text("url").notNull(),
+    citation: text("citation"),
+    publishedOn: text("published_on"),
+    accessedOn: text("accessed_on").notNull(),
+    supports: text("supports", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("mandate_sources_mandate_idx").on(t.mandateId),
+    index("mandate_sources_phase_idx").on(t.phaseId),
+  ],
+);
+
+export const projectMandates = sqliteTable(
+  "project_mandates",
+  {
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    mandateId: integer("mandate_id")
+      .notNull()
+      .references(() => mandates.id, { onDelete: "cascade" }),
+    relationship: text("relationship").notNull(),
+    coverageNote: text("coverage_note"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.projectId, t.mandateId, t.relationship] }),
+    index("project_mandates_mandate_idx").on(t.mandateId),
+  ],
+);
+
+/** Evidence-based editorial assessment. No composite score is stored or shown. */
+export const projectEvaluations = sqliteTable(
+  "project_evaluations",
+  {
+    projectId: integer("project_id")
+      .primaryKey()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("draft"),
+    legalCurrency: text("legal_currency").notNull().default("unreviewed"),
+    legalAsOf: text("legal_as_of"),
+    legalScope: text("legal_scope"),
+    productionReadiness: text("production_readiness")
+      .notNull()
+      .default("unreviewed"),
+    publisherKind: text("publisher_kind").notNull().default("unknown"),
+    publisherName: text("publisher_name"),
+    publisherRelationship: text("publisher_relationship"),
+    licenseConfidence: text("license_confidence")
+      .notNull()
+      .default("unreviewed"),
+    documentation: text("documentation").notNull().default("unreviewed"),
+    automatedTests: text("automated_tests").notNull().default("unreviewed"),
+    releaseDiscipline: text("release_discipline").notNull().default("unreviewed"),
+    securityProcess: text("security_process").notNull().default("unreviewed"),
+    deploymentOperability: text("deployment_operability")
+      .notNull()
+      .default("unreviewed"),
+    dataHandling: text("data_handling").notNull().default("unreviewed"),
+    governanceContinuity: text("governance_continuity")
+      .notNull()
+      .default("unreviewed"),
+    supportPath: text("support_path").notNull().default("unreviewed"),
+    editorialNote: text("editorial_note"),
+    reviewerId: text("reviewer_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reviewerName: text("reviewer_name"),
+    lastReviewedAt: integer("last_reviewed_at", { mode: "timestamp" }),
+    reviewDueAt: integer("review_due_at", { mode: "timestamp" }),
+    publishedAt: integer("published_at", { mode: "timestamp" }),
+    version: integer("version").notNull().default(1),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("project_evaluations_status_idx").on(t.status),
+    index("project_evaluations_review_due_idx").on(t.reviewDueAt),
+  ],
+);
+
+export const projectEvaluationSources = sqliteTable(
+  "project_evaluation_sources",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projectEvaluations.projectId, { onDelete: "cascade" }),
+    dimension: text("dimension").notNull(),
+    kind: text("kind").notNull().default("primary"),
+    title: text("title").notNull(),
+    publisher: text("publisher").notNull(),
+    url: text("url").notNull(),
+    citation: text("citation"),
+    observedOn: text("observed_on").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("project_evaluation_sources_project_idx").on(t.projectId)],
+);
+
 /**
  * GitHub releases per project, harvested by the radar refresh endpoint.
  * Powers the /radar "what's new" page; one row per (project, tag).

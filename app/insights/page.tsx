@@ -10,8 +10,8 @@ import {
   projects,
   projectStats,
 } from "@/lib/db/schema";
-import { ACTIVE_WINDOW_DAYS } from "@/lib/projects";
 import { licenseGroup } from "@/lib/license";
+import { isProjectActive } from "@/lib/health";
 import { THESES } from "@/lib/insights";
 import { NewsletterForm } from "@/components/newsletter-form";
 
@@ -39,6 +39,7 @@ export default async function InsightsPage() {
       .select({
         id: projects.id,
         pushedAt: projectStats.pushedAt,
+        archived: projectStats.archived,
         license: projectStats.licenseSpdx,
       })
       .from(projects)
@@ -58,9 +59,8 @@ export default async function InsightsPage() {
   ]);
 
   const total = projectRows.length;
-  const activeCutoff = Date.now() - ACTIVE_WINDOW_DAYS * 86_400_000;
   const active = projectRows.filter(
-    (p) => p.pushedAt && p.pushedAt.getTime() >= activeCutoff,
+    (p) => isProjectActive(p.pushedAt, Boolean(p.archived)),
   ).length;
   const permissive = projectRows.filter(
     (p) => licenseGroup(p.license) === "permissive",
@@ -93,7 +93,7 @@ export default async function InsightsPage() {
 
   const evidence: Record<string, string> = {
     mandates: `${eInvProjects.size} of ${total} projects carry the e-invoicing & digital reporting tag — the largest subject cluster in the index — spanning ${eInvJurs} jurisdictions.`,
-    "authority-code": `United States: ${us} projects, the deepest national ecosystem here, anchored by the IRS's own Direct File. Germany: ${de} projects, every one orbiting a closed submission core.`,
+    "authority-code": `United States: ${us} projects, the deepest national ecosystem here, including the IRS's archived Direct File reference. Germany: ${de} projects, every one orbiting a closed submission core.`,
     "ai-open-first": `${ai} projects sit in the six AI and agent categories — ${Math.round((ai / total) * 100)}% of the entire index, the fastest-growing slice of it.`,
     "two-ecosystems": `The leading commercial landscape lists ~500 vendors; qualifying open source among them amounts to thin API clients. The ${total} projects here come from authorities, academics, and practitioners instead.`,
     "last-mile": `Filing tools in the index: ${filing}. Calculation, rules, format, and validation tools: ${calc}. The gap is the locked channel, not missing demand.`,

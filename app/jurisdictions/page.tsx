@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { facets, projectFacets, projectStats } from "@/lib/db/schema";
-import { ACTIVE_WINDOW_DAYS } from "@/lib/projects";
+import { isProjectActive } from "@/lib/health";
 import { JURISDICTION_CONTENT } from "@/lib/jurisdictions";
+import { listMandates } from "@/lib/mandate-data";
 import { ATLAS_PATTERNS, ATLAS_SECTIONS } from "@/lib/atlas";
-import { MANDATES } from "@/lib/stack";
 import { IconArrowRight } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ type JurCard = {
 };
 
 export default async function JurisdictionsPage() {
-  const [jurs, rows] = await Promise.all([
+  const [jurs, rows, mandateRows] = await Promise.all([
     db
       .select({ id: facets.id, slug: facets.slug, name: facets.name })
       .from(facets)
@@ -36,14 +36,15 @@ export default async function JurisdictionsPage() {
         facetId: projectFacets.facetId,
         projectId: projectFacets.projectId,
         pushedAt: projectStats.pushedAt,
+        archived: projectStats.archived,
       })
       .from(projectFacets)
       .innerJoin(facets, eq(facets.id, projectFacets.facetId))
       .leftJoin(projectStats, eq(projectStats.projectId, projectFacets.projectId))
       .where(eq(facets.kind, "jurisdiction")),
+    listMandates(),
   ]);
 
-  const activeCutoff = Date.now() - ACTIVE_WINDOW_DAYS * 86_400_000;
   const byId = new Map<number, JurCard>(
     jurs.map((j) => [j.id, { slug: j.slug, name: j.name, count: 0, active: 0 }]),
   );
@@ -52,18 +53,27 @@ export default async function JurisdictionsPage() {
   for (const r of rows) {
     const j = byId.get(r.facetId);
     if (!j) continue;
-    const isActive = Boolean(r.pushedAt && r.pushedAt.getTime() >= activeCutoff);
+    const isActive = isProjectActive(r.pushedAt, Boolean(r.archived));
     j.count += 1;
     if (isActive) j.active += 1;
     tagged.add(r.projectId);
     if (isActive) taggedActive.add(r.projectId);
   }
   const bySlug = new Map([...byId.values()].map((j) => [j.slug, j]));
-  const mandateByJur = new Map(MANDATES.map((m) => [m.jur, m]));
-  const liveMandates = MANDATES.filter((m) => m.status === "live").length;
+  const mandatesByJur = new Map<string, typeof mandateRows>();
+  for (const mandate of mandateRows) {
+    const jurisdictionMandates = mandatesByJur.get(mandate.jurisdictionSlug) ?? [];
+    jurisdictionMandates.push(mandate);
+    mandatesByJur.set(mandate.jurisdictionSlug, jurisdictionMandates);
+  }
+  const underwayMandates = mandateRows.filter(
+    (mandate) =>
+      mandate.lifecycle === "in-force" || mandate.lifecycle === "phased",
+  ).length;
 
   const card = (j: JurCard) => {
-    const mandate = mandateByJur.get(j.slug);
+    const jurisdictionMandates = mandatesByJur.get(j.slug) ?? [];
+    const mandate = jurisdictionMandates[0];
     return (
       <Link
         key={j.slug}
@@ -78,11 +88,17 @@ export default async function JurisdictionsPage() {
           {mandate ? (
             <span
               className={`status-pill ${
-                mandate.status === "live" ? "is-health-active" : "is-health-quiet"
+                mandate.lifecycle === "in-force"
+                  ? "is-health-active"
+                  : "is-health-quiet"
               }`}
-              title={`${mandate.name} — ${mandate.status === "live" ? "in force" : "ahead"}: ${mandate.when}`}
+              title={jurisdictionMandates
+                .map((item) => `${item.name} — ${item.lifecycle}. ${item.summary}`)
+                .join("\n")}
             >
-              {mandate.name}
+              {jurisdictionMandates.length === 1
+                ? mandate.name
+                : `${jurisdictionMandates.length} mandates`}
             </span>
           ) : null}
         </div>
@@ -123,8 +139,8 @@ export default async function JurisdictionsPage() {
           <span className="stat-l">Active this month</span>
         </div>
         <div className="stat-tile is-blue">
-          <span className="stat-v">{liveMandates}</span>
-          <span className="stat-l">Mandates in force</span>
+          <span className="stat-v">{underwayMandates}</span>
+          <span className="stat-l">Mandates underway</span>
         </div>
       </div>
 

@@ -3,22 +3,25 @@ import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { listProjects } from "@/lib/projects";
 import { currentGithubLogin } from "@/lib/maintainers";
+import { getPortfolioWorkspace } from "@/lib/portfolio";
+import { ensureCurrentUser } from "@/lib/users";
 import { ProjectCard } from "@/components/project-card";
+import { WorkspacePortfolio } from "@/components/workspace-portfolio";
 import { IconShield, IconStar } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "My projects",
+  title: "Workspace",
   // A personal list has nothing to offer a crawler.
   robots: { index: false, follow: false },
 };
 
-type Tab = "maintained" | "starred";
+type Tab = "maintained" | "shortlist" | "portfolio";
 
 function Tabs({ active }: { active: Tab }) {
   return (
-    <nav className="admin-tabs" aria-label="My projects sections">
+    <nav className="admin-tabs" aria-label="Workspace sections">
       <Link
         href="/my-projects"
         className={`glass-chip${active === "maintained" ? " is-active" : ""}`}
@@ -26,10 +29,16 @@ function Tabs({ active }: { active: Tab }) {
         Maintained
       </Link>
       <Link
-        href="/my-projects?tab=starred"
-        className={`glass-chip${active === "starred" ? " is-active" : ""}`}
+        href="/my-projects?tab=shortlist"
+        className={`glass-chip${active === "shortlist" ? " is-active" : ""}`}
       >
-        Starred
+        Shortlist
+      </Link>
+      <Link
+        href="/my-projects?tab=portfolio"
+        className={`glass-chip${active === "portfolio" ? " is-active" : ""}`}
+      >
+        Portfolio
       </Link>
     </nav>
   );
@@ -41,7 +50,13 @@ export default async function MyProjectsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-  const tab: Tab = params.tab === "starred" ? "starred" : "maintained";
+  const requestedTab = typeof params.tab === "string" ? params.tab : "";
+  const tab: Tab =
+    requestedTab === "portfolio"
+      ? "portfolio"
+      : requestedTab === "shortlist" || requestedTab === "starred"
+        ? "shortlist"
+        : "maintained";
   const { userId } = await auth();
 
   if (!userId) {
@@ -49,17 +64,17 @@ export default async function MyProjectsPage({
       <div className="container">
         <div className="narrow">
           <div className="section-head">
-            <span className="eyebrow">Your list</span>
-            <h1 className="display-m">My projects.</h1>
+            <span className="eyebrow">Private workspace</span>
+            <h1 className="display-m">Workspace.</h1>
           </div>
           <div className="empty-state">
             <div className="es-icon">
               <IconStar />
             </div>
-            <h4>Sign in to see your projects</h4>
+            <h4>Sign in to open your workspace</h4>
             <p>
-              Everything is kept per account: the projects you maintain here
-              and the ones you have starred while browsing.
+              Your maintained projects, shortlist, portfolio scope, decisions,
+              and notes are kept per account.
             </p>
             <Link
               href={`/sign-in?redirect_url=${encodeURIComponent("/my-projects")}`}
@@ -73,8 +88,35 @@ export default async function MyProjectsPage({
     );
   }
 
+  if (tab === "portfolio") {
+    const workspaceUserId = await ensureCurrentUser();
+    if (!workspaceUserId) return null;
+    const workspace = await getPortfolioWorkspace(workspaceUserId);
+
+    return (
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">Private workspace</span>
+          <div className="row">
+            <h1 className="display-m">Workspace.</h1>
+            <span className="meta-mono">
+              {workspace.projects.length} portfolio project
+              {workspace.projects.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          <p className="body-l" style={{ maxWidth: 620 }}>
+            Map your multinational scope, record private decisions, compare
+            evidence, and export a dated decision record. Nobody else sees this page.
+          </p>
+        </div>
+        <Tabs active={tab} />
+        <WorkspacePortfolio workspace={workspace} shortlist={workspace.shortlist} />
+      </div>
+    );
+  }
+
   const { items } =
-    tab === "starred"
+    tab === "shortlist"
       ? await listProjects({
           userId,
           starredByUserId: userId,
@@ -89,9 +131,9 @@ export default async function MyProjectsPage({
   return (
     <div className="container">
       <div className="section-head">
-        <span className="eyebrow">Your list</span>
+        <span className="eyebrow">Private workspace</span>
         <div className="row">
-          <h1 className="display-m">My projects.</h1>
+          <h1 className="display-m">Workspace.</h1>
           <span className="meta-mono">
             {items.length} project{items.length !== 1 ? "s" : ""}
           </span>
@@ -99,7 +141,7 @@ export default async function MyProjectsPage({
         <p className="body-l" style={{ maxWidth: 620 }}>
           {tab === "maintained"
             ? "The projects you maintain on TaxOSS — claimed by you, or granted to your GitHub account by a claimant. Nobody else sees this page."
-            : "Everything you have starred, most recent first. Stars are yours alone — they are separate from the project's GitHub stargazers, and nobody else sees this page."}
+            : "Your shortlisted candidates, most recent first. Stars remain separate from portfolio membership, private notes, and decision states."}
         </p>
       </div>
 
@@ -131,10 +173,10 @@ export default async function MyProjectsPage({
           <div className="es-icon">
             <IconStar />
           </div>
-          <h4>No stars yet</h4>
+          <h4>No shortlist yet</h4>
           <p>
-            Hit the star on any project card or project page and it lands here.
-            Useful for keeping a shortlist while you evaluate tools.
+            Star any project card or project page to add it to this private
+            shortlist, then move selected candidates into your portfolio.
           </p>
           <Link href="/" className="btn btn-primary">
             Browse the index

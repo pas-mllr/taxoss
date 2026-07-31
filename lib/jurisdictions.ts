@@ -27,7 +27,7 @@ export const JURISDICTION_CONTENT: Record<string, JurisdictionContent> = {
     intro:
       "EU-level open source clusters around two things every business touches: VAT number validation against VIES, and the EN 16931 e-invoicing standard that ViDA will push into every member state. Libraries here handle MOSS/OSS VAT rules, structured invoice formats, and cross-border compliance so national tools don't have to.",
     missing:
-      "ViDA is about to make digital reporting mandatory across the union, and there is no open reference implementation of the new requirements yet — the first good one will be everywhere.",
+      "ViDA makes cross-border B2B digital reporting effective in 2030 and aligns legacy domestic systems by 2035. There is no open reference implementation of those requirements yet.",
   },
   au: {
     lede: "ATO-adjacent datasets and community tooling for Australian tax.",
@@ -116,7 +116,7 @@ export const JURISDICTION_CONTENT: Record<string, JurisdictionContent> = {
   es: {
     lede: "VeriFactu, Facturae, and SII: Spain's anti-fraud invoicing stack.",
     intro:
-      "Spain's VeriFactu regulation — certified billing software with hash-chained records — triggered a wave of open implementations: libraries for VeriFactu compliance, Facturae generation, and SII reporting in PHP, Go, and .NET. It's currently one of the most active corners of European tax open source.",
+      "Spain's billing-system rules require covered software to create integrity-protected records; VERI*FACTU transmission is one permitted mode rather than an external product certification. The rules triggered open implementations for SIF compliance, Facturae generation, and SII reporting in PHP, Go, and .NET.",
     missing:
       "Open Renta (personal income tax) tooling — AEAT's filing side remains closed, and nobody models IRPF rules openly yet.",
   },
@@ -142,10 +142,10 @@ export const JURISDICTION_CONTENT: Record<string, JurisdictionContent> = {
       "Open Making Tax Digital bridging software — MTD mandates digital filing through recognized software, and the recognition process has kept open source out.",
   },
   us: {
-    lede: "IRS Direct File is open source. So is a whole filing ecosystem.",
+    lede: "The IRS published Direct File's Tax Year 2024 code, now an archived reference.",
     intro:
-      "The United States has the deepest catalog here, anchored by the IRS's own Direct File release — the actual federal filing system, in the open. Around it: community filing engines, Form 1040 libraries, crypto cost-basis tools built for IRS rules, dynamic scoring models used in real policy analysis, and MCP servers that give agents access to tax data.",
+      "The United States has the deepest catalog here. The IRS's Direct File release exposed a real federal filing implementation, but the repository is now archived, may contain unpatched vulnerabilities, and should not be used in production. Around that historical reference are community filing engines, Form 1040 libraries, crypto cost-basis tools, policy models, and MCP servers.",
     missing:
-      "State coverage. Federal tooling is rich; most of the fifty state systems have no open implementation, which is exactly the gap Direct File's state integrations were meant to close.",
+      "Maintained filing implementations and state coverage. Federal reference material is unusually rich, but most state systems have no open implementation.",
   },
 };

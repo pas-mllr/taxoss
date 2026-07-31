@@ -105,6 +105,9 @@ export async function previewRepo(
   if (existingPath) {
     return { ...fail(`${d.fullName} is already in the index.`), existingPath };
   }
+  if (d.stats.archived) {
+    return fail("Archived repositories are kept only when a previously indexed project becomes historical.");
+  }
 
   return {
     ok: true,
@@ -153,6 +156,9 @@ export async function submitProject(
   const resolved = await resolveRepo(detected);
   if ("error" in resolved) return fail(resolved.error);
   const fields = resolved.data;
+  if (fields.stats.archived) {
+    return fail("Archived repositories cannot be newly added to the index.");
+  }
 
   // Tagline and categories are maintainer-curated after claiming; submissions
   // only get a provisional auto-categorization from topics/description.
@@ -195,7 +201,13 @@ export async function submitProject(
       catRows.map((c) => ({ projectId, categoryId: c.id })),
     );
   }
-  await autoAssignFacets(projectId, fields.topics, fields.description, fields.repo);
+  await autoAssignFacets(
+    projectId,
+    fields.topics,
+    fields.description,
+    fields.repo,
+    provisionalSlugs,
+  );
 
   const shape = {
     source: fields.source,

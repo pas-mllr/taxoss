@@ -1,7 +1,7 @@
-/** Filter facets: jurisdictions and tax subjects. Upserted on every boot
+/** Filter facets: jurisdictions, tax domains, and process stages. Upserted on every boot
  * (like CATEGORY_SEED), so renames/reorders reach existing databases. */
 
-export type FacetKind = "jurisdiction" | "subject";
+export type FacetKind = "jurisdiction" | "subject" | "process";
 
 export const FACET_SEED: {
   kind: FacetKind;
@@ -42,4 +42,20 @@ export const FACET_SEED: {
   { kind: "subject", slug: "property-tax", name: "Property & Vehicle Tax" },
   { kind: "subject", slug: "audit-controversy", name: "Tax Audit & Controversy" },
   { kind: "subject", slug: "policy-research", name: "Tax Policy & Research" },
+  { kind: "subject", slug: "pillar-two", name: "Pillar Two & Global Minimum Tax" },
+  { kind: "subject", slug: "tax-provision-ias12", name: "IAS 12 & Tax Provision" },
+  { kind: "subject", slug: "cbcr", name: "Country-by-Country Reporting" },
+  { kind: "subject", slug: "withholding", name: "Withholding Tax" },
+  { kind: "subject", slug: "unclassified", name: "Unclassified" },
+
+  // ===== Process stages =====
+  { kind: "process", slug: "interpret", name: "Interpret" },
+  { kind: "process", slug: "calculate", name: "Calculate" },
+  { kind: "process", slug: "prepare", name: "Prepare" },
+  { kind: "process", slug: "validate", name: "Validate" },
+  { kind: "process", slug: "report", name: "Report" },
+  { kind: "process", slug: "file", name: "File" },
+  { kind: "process", slug: "archive", name: "Archive" },
+  { kind: "process", slug: "monitor-defend", name: "Monitor & Defend" },
+  { kind: "process", slug: "unclassified", name: "Unclassified" },
 ];

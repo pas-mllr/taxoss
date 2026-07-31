@@ -43,8 +43,8 @@ export function ProjectCard({
             <span
               className="claimed-check"
               role="img"
-              aria-label="Claimed"
-              title="Claimed"
+              aria-label="Verified maintainer"
+              title="Verified maintainer"
             >
               <IconCheck />
             </span>

@@ -8,7 +8,14 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Auth-gated and account surfaces carry nothing worth indexing.
-        disallow: ["/account", "/sign-in", "/sign-up", "/api/"],
+        disallow: [
+          "/account",
+          "/my-projects",
+          "/starred",
+          "/sign-in",
+          "/sign-up",
+          "/api/",
+        ],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

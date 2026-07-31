@@ -10,9 +10,7 @@ import { projectStats } from "@/lib/db/schema";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ConsentBanner } from "@/components/consent-banner";
 import { NewsletterModal } from "@/components/newsletter-modal";
-import { PostHogAnalytics } from "@/components/posthog-analytics";
 import "./globals.css";
 
 const bigShoulders = Big_Shoulders({
@@ -53,20 +51,20 @@ export const metadata: Metadata = {
     template: "%s · TaxOSS",
   },
   description:
-    "A community index of open-source tax software. Live GitHub stats, community reviews, maintainer-claimed pages.",
+    "A community index of open-source tax software. Live source stats, member reviews, maintainer-claimed pages.",
   openGraph: {
     siteName: SITE_NAME,
     type: "website",
     url: SITE_URL,
     title: "TaxOSS · Open Source Tax Software",
     description:
-      "A community index of open-source tax software. Live GitHub stats, community reviews, maintainer-claimed pages.",
+      "A community index of open-source tax software. Live source stats, member reviews, maintainer-claimed pages.",
   },
   twitter: {
     card: "summary",
     title: "TaxOSS · Open Source Tax Software",
     description:
-      "A community index of open-source tax software. Live GitHub stats, community reviews, maintainer-claimed pages.",
+      "A community index of open-source tax software. Live source stats, member reviews, maintainer-claimed pages.",
   },
 };
 
@@ -113,12 +111,17 @@ export default async function RootLayout({
                 '(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}})()',
             }}
           />
+          {/* One-release cleanup for the removed analytics integration. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                '(function(){try{for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k==="loss-consent"||k==="loss-internal"||k&&(/^(ph_|__ph_)/).test(k)){localStorage.removeItem(k)}}for(var j=sessionStorage.length-1;j>=0;j--){var s=sessionStorage.key(j);if(s&&(/^(ph_|__ph_)/).test(s)){sessionStorage.removeItem(s)}}var d=location.hostname.replace(/^www\\./,"");document.cookie.split(";").forEach(function(c){var n=c.split("=")[0].trim();if((/^(ph_|__ph_)/).test(n)){document.cookie=n+"=;Max-Age=0;path=/;SameSite=Lax";document.cookie=n+"=;Max-Age=0;path=/;domain=."+d+";SameSite=Lax"}})}catch(e){}})()',
+            }}
+          />
           <SiteHeader trackedStars={trackedStars} isAdmin={isAdmin} />
           <main>{children}</main>
           <SiteFooter />
-          <ConsentBanner />
           <NewsletterModal />
-          <PostHogAnalytics />
         </body>
       </html>
     </ClerkProvider>

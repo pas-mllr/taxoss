@@ -50,6 +50,27 @@
       "when": 1785439066469,
       "tag": "0006_radar-releases",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1785488017482,
+      "tag": "0007_p0-trust-cleanup",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1785500016801,
+      "tag": "0008_evidence-governance",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1785511496576,
+      "tag": "0009_multinational-workspace",
+      "breakpoints": true
     }
   ]
 }

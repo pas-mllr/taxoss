@@ -6,6 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { facets } from "@/lib/db/schema";
 import { listProjects } from "@/lib/projects";
+import { listMandates } from "@/lib/mandate-data";
 import { JURISDICTION_CONTENT } from "@/lib/jurisdictions";
 import { ProjectCard } from "@/components/project-card";
 import { IconArrowRight } from "@/components/icons";
@@ -49,12 +50,15 @@ export default async function JurisdictionPage({
   const j = await getJurisdiction(slug);
   if (!j) notFound();
 
-  const { userId } = await auth();
-  const { items, total } = await listProjects({
-    jurisdiction: slug,
-    sort: "site-stars",
-    limit: MAX_SHOWN,
-  });
+  const [{ userId }, { items, total }, mandateRows] = await Promise.all([
+    auth(),
+    listProjects({
+      jurisdiction: slug,
+      sort: "site-stars",
+      limit: MAX_SHOWN,
+    }),
+    listMandates({ jurisdiction: slug }),
+  ]);
 
   return (
     <div className="container">
@@ -65,6 +69,36 @@ export default async function JurisdictionPage({
           {j.intro}
         </p>
       </div>
+
+      {mandateRows.length > 0 && (
+        <section className="social-section" style={{ marginBottom: 32 }}>
+          <div className="social-head">
+            <h2>Mandates and transitions</h2>
+            <span className="social-count">{mandateRows.length}</span>
+          </div>
+          {mandateRows.map((mandate) => (
+            <div className="entry" key={mandate.id}>
+              <div className="entry-body">
+                <div className="entry-head">
+                  <span className="badge badge-neutral">{mandate.lifecycle}</span>
+                  <Link href={`/mandates/${mandate.slug}`} className="entry-author accent">
+                    {mandate.name}
+                  </Link>
+                  <span className="entry-date">Review {mandate.reviewState}</span>
+                </div>
+                <p className="entry-text">{mandate.summary}</p>
+                <Link
+                  href={`/mandates/${mandate.slug}`}
+                  className="accent mono"
+                  style={{ fontSize: 11.5 }}
+                >
+                  Phases, scope, exceptions & sources →
+                </Link>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
 
       <div className="claim-band" style={{ marginBottom: 32 }}>
         <div className="stack-4">

@@ -14,8 +14,10 @@ export default function AboutPage() {
         <h1 className="display-m">How this works.</h1>
         <p className="body-l" style={{ maxWidth: 620 }}>
           TaxOSS is a small index of open-source tax software. Every entry is a
-          real GitHub repository, its stats come straight from GitHub, and each
-          repository can be listed exactly once. Browsing needs no account.
+          real public repository or Hugging Face artifact, its source stats are
+          refreshed upstream, and each project can be listed exactly once.
+          Browsing needs no account. Read the{" "}
+          <Link href="/methodology" className="accent">editorial methodology</Link>.
         </p>
       </div>
 

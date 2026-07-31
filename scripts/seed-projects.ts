@@ -54,6 +54,10 @@ async function main() {
       continue;
     }
     const d = result.data;
+    if (d.archived) {
+      console.error(`SKIP ${s.repo}: repository is archived`);
+      continue;
+    }
     const key = String(d.full_name).toLowerCase();
 
     const existing = await db

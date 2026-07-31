@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { projects, projectStats } from "@/lib/db/schema";
@@ -46,7 +46,13 @@ export async function POST(request: Request) {
     })
     .from(projects)
     .leftJoin(projectStats, eq(projectStats.projectId, projects.id))
-    .where(and(eq(projects.featured, true), isNull(projects.featuredAnnouncedAt)));
+    .where(
+      and(
+        eq(projects.featured, true),
+        isNull(projects.featuredAnnouncedAt),
+        sql`coalesce(${projectStats.archived}, 0) = 0`,
+      ),
+    );
 
   if (rows.length === 0) {
     return NextResponse.json({

@@ -11,6 +11,8 @@ import {
   projectStats,
 } from "@/lib/db/schema";
 import { listProjects, type SortKey } from "@/lib/projects";
+import { getProjectEvidence } from "@/lib/evaluation-data";
+import { getMandateBySlug, listMandates } from "@/lib/mandate-data";
 import { hfKey } from "@/lib/huggingface";
 import { detectSource } from "@/lib/index-repo";
 import { projectHref, sourceExternalUrl } from "@/lib/sources";
@@ -23,6 +25,7 @@ import { SITE_URL } from "@/lib/site";
  */
 
 const SORT_VALUES = ["site-stars", "stars", "rating", "newest", "active"] as const;
+const REVIEW_STATES = ["unreviewed", "current", "overdue"] as const;
 
 function text(data: unknown) {
   return {
@@ -56,17 +59,22 @@ const handler = createMcpHandler(
           subject: z
             .string()
             .optional()
-            .describe("Tax subject facet slug, e.g. vat-gst-sales, personal-tax (see list_facets)"),
+            .describe("Tax domain facet slug, e.g. vat-gst-sales, pillar-two (see list_facets)"),
+          process: z
+            .string()
+            .optional()
+            .describe("Process facet slug, e.g. interpret, validate, file (see list_facets)"),
           sort: z.enum(SORT_VALUES).optional().describe("Ranking; default site-stars"),
           limit: z.number().int().min(1).max(50).optional().describe("Max results, default 10"),
         }),
       },
-      async ({ query, category, jurisdiction, subject, sort, limit }) => {
+      async ({ query, category, jurisdiction, subject, process, sort, limit }) => {
         const { items, total } = await listProjects({
           q: query,
           categorySlug: category,
           jurisdiction,
           subject,
+          process,
           sort: (sort as SortKey) ?? "site-stars",
           limit: limit ?? 10,
         });
@@ -93,7 +101,7 @@ const handler = createMcpHandler(
       {
         title: "Get a TaxOSS project",
         description:
-          "Get one project's full record: stats, license, categories, jurisdictions, and tax subjects. Accepts GitHub owner/name or a huggingface.co URL.",
+          "Get one project's full record: stats, license, categories, jurisdictions, tax domains, and evidence. Accepts GitHub owner/name or a huggingface.co URL.",
         inputSchema: z.object({
           repo: z
             .string()
@@ -136,7 +144,7 @@ const handler = createMcpHandler(
         const p = rows[0];
         if (!p) return text({ error: `${repo} is not in the TaxOSS index.` });
 
-        const [cats, facetRows] = await Promise.all([
+        const [cats, facetRows, evidence] = await Promise.all([
           db
             .select({ slug: categories.slug, name: categories.name })
             .from(projectCategories)
@@ -147,11 +155,26 @@ const handler = createMcpHandler(
             .from(projectFacets)
             .innerJoin(facets, eq(facets.id, projectFacets.facetId))
             .where(eq(projectFacets.projectId, p.id)),
+          getProjectEvidence(p.id),
         ]);
 
-        const { id: _id, ...rest } = p;
         return text({
-          ...rest,
+          source: p.source,
+          sourceType: p.sourceType,
+          owner: p.owner,
+          repo: p.repo,
+          tagline: p.tagline,
+          websiteUrl: p.websiteUrl,
+          description: p.description,
+          language: p.language,
+          license: p.license,
+          stars: p.stars,
+          forks: p.forks,
+          downloads: p.downloads,
+          openIssues: p.openIssues,
+          pushedAt: p.pushedAt,
+          archived: p.archived,
+          topics: p.topics,
           categories: cats,
           jurisdictions: facetRows
             .filter((f) => f.kind === "jurisdiction")
@@ -159,8 +182,156 @@ const handler = createMcpHandler(
           subjects: facetRows
             .filter((f) => f.kind === "subject")
             .map((f) => ({ slug: f.slug, name: f.name })),
+          domains: facetRows
+            .filter((f) => f.kind === "subject")
+            .map((f) => ({ slug: f.slug, name: f.name })),
+          processes: facetRows
+            .filter((f) => f.kind === "process")
+            .map((f) => ({ slug: f.slug, name: f.name })),
+          signals: evidence.signals,
+          assessment: evidence.evaluation
+            ? {
+                legalScope: evidence.evaluation.legalScope,
+                legalAsOf: evidence.evaluation.legalAsOf,
+                publisherKind: evidence.evaluation.publisherKind,
+                publisherName: evidence.evaluation.publisherName,
+                publisherRelationship:
+                  evidence.evaluation.publisherRelationship,
+                licenseConfidence: evidence.evaluation.licenseConfidence,
+                editorialNote: evidence.evaluation.editorialNote,
+                reviewState: evidence.evaluation.reviewState,
+                reviewedAt: evidence.evaluation.lastReviewedAt,
+                reviewedBy: evidence.evaluation.reviewerName,
+              }
+            : null,
+          scorecard: evidence.signals.scorecard,
+          evidence: evidence.sources.map((source) => ({
+            dimension: source.dimension,
+            title: source.title,
+            publisher: source.publisher,
+            url: source.url,
+            observedOn: source.observedOn,
+          })),
+          mandates: evidence.mandates,
+          claimProvenance: evidence.claimProvenance,
+          assessmentDisclaimer:
+            "Evidence-based editorial assessment, not certification or legal advice.",
           page: `${SITE_URL}${projectHref(p)}`,
           repoUrl: sourceExternalUrl(p),
+        });
+      },
+    );
+
+    server.registerTool(
+      "list_mandates",
+      {
+        title: "List TaxOSS mandates",
+        description:
+          "List published, source-backed tax mandate records with phases, scope, exceptions, and review state.",
+        inputSchema: z.object({
+          jurisdiction: z
+            .string()
+            .optional()
+            .describe("Jurisdiction slug, e.g. es, pl, uk, eu"),
+          lifecycle: z
+            .string()
+            .optional()
+            .describe("Lifecycle such as ahead, in-force, phased, or historical"),
+          reviewState: z
+            .enum(REVIEW_STATES)
+            .optional()
+            .describe("Editorial review freshness"),
+        }),
+      },
+      async ({ jurisdiction, lifecycle, reviewState }) => {
+        const rows = await listMandates({
+          jurisdiction,
+          lifecycle,
+          reviewState,
+        });
+        return text(
+          rows.map((mandate) => ({
+            slug: mandate.slug,
+            name: mandate.name,
+            jurisdiction: {
+              slug: mandate.jurisdictionSlug,
+              name: mandate.jurisdictionName,
+            },
+            summary: mandate.summary,
+            lifecycle: mandate.lifecycle,
+            reviewState: mandate.reviewState,
+            reviewedAt: mandate.lastReviewedAt,
+            phases: mandate.phases.map((phase) => ({
+              label: phase.label,
+              type: phase.phaseType,
+              effectiveFrom: phase.effectiveFrom,
+              effectiveTo: phase.effectiveTo,
+            })),
+            page: `${SITE_URL}/mandates/${mandate.slug}`,
+          })),
+        );
+      },
+    );
+
+    server.registerTool(
+      "get_mandate",
+      {
+        title: "Get a TaxOSS mandate",
+        description:
+          "Get one published mandate's legal basis, applicability, phases, exceptions, classified sources, and review metadata.",
+        inputSchema: z.object({
+          slug: z.string().describe("Mandate slug from list_mandates"),
+        }),
+      },
+      async ({ slug }) => {
+        const mandate = await getMandateBySlug(slug);
+        if (!mandate) return text({ error: `${slug} is not a published mandate.` });
+        return text({
+          slug: mandate.slug,
+          name: mandate.name,
+          jurisdiction: {
+            slug: mandate.jurisdictionSlug,
+            name: mandate.jurisdictionName,
+          },
+          summary: mandate.summary,
+          legalBasis: mandate.legalBasis,
+          scope: mandate.scope,
+          exceptions: mandate.exceptions,
+          lifecycle: mandate.lifecycle,
+          reviewState: mandate.reviewState,
+          reviewedAt: mandate.lastReviewedAt,
+          reviewDueAt: mandate.reviewDueAt,
+          reviewedBy: mandate.reviewerName,
+          phases: mandate.phases.map((phase) => ({
+            slug: phase.slug,
+            label: phase.label,
+            type: phase.phaseType,
+            effectiveFrom: phase.effectiveFrom,
+            effectiveTo: phase.effectiveTo,
+            scope: phase.scope,
+            exceptions: phase.exceptions,
+          })),
+          sources: mandate.sources.map((source) => {
+            const phase = source.phaseId
+              ? mandate.phases.find((item) => item.id === source.phaseId)
+              : null;
+            return {
+              kind: source.kind,
+              title: source.title,
+              publisher: source.publisher,
+              url: source.url,
+              citation: source.citation,
+              publishedOn: source.publishedOn,
+              accessedOn: source.accessedOn,
+              supports: source.supports,
+              phase: phase
+                ? { slug: phase.slug, label: phase.label }
+                : null,
+            };
+          }),
+          disclaimer:
+            "Editorial research record, not legal advice or a statement that software makes an organization compliant.",
+          page: `${SITE_URL}/mandates/${mandate.slug}`,
         });
       },
     );
@@ -190,7 +361,7 @@ const handler = createMcpHandler(
       "list_facets",
       {
         title: "List TaxOSS facets",
-        description: "List all jurisdiction and tax-subject facets with project counts.",
+        description: "List all jurisdiction, tax-domain, and process facets with project counts.",
         inputSchema: z.object({}),
       },
       async () => {
@@ -206,14 +377,15 @@ const handler = createMcpHandler(
         return text({
           jurisdictions: rows.filter((r) => r.kind === "jurisdiction"),
           subjects: rows.filter((r) => r.kind === "subject"),
+          processes: rows.filter((r) => r.kind === "process"),
         });
       },
     );
   },
   {
-    serverInfo: { name: "taxoss", version: "1.0.0" },
+    serverInfo: { name: "taxoss", version: "1.2.0" },
     instructions:
-      "TaxOSS indexes open-source tax software: engines, filing tools, e-invoicing libraries, MCP servers, AI models, and datasets across 19 jurisdictions. Use search_projects to find tools, list_categories/list_facets to discover filter values, and get_project for full details.",
+      "TaxOSS indexes open-source tax software and source-backed tax mandate records. Use search_projects to find tools, list_categories/list_facets to discover filter values, get_project for project evidence, and list_mandates/get_mandate for reviewed regulatory context. Assessments are editorial research, not certification or legal advice.",
   },
 );
 

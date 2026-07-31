@@ -158,6 +158,14 @@ export async function POST(request: Request) {
       continue;
     }
     const d = resolved.data;
+    if (d.stats.archived) {
+      results.push({
+        repo: entry.repo,
+        status: "error",
+        message: "Archived repositories cannot be newly added to the index.",
+      });
+      continue;
+    }
 
     // The API follows renames, so re-check under the canonical name.
     if (await alreadyIndexed(d.key)) {
@@ -206,7 +214,7 @@ export async function POST(request: Request) {
         catRows.map((c) => ({ projectId, categoryId: c.id })),
       );
     }
-    await autoAssignFacets(projectId, d.topics, d.description, d.repo);
+    await autoAssignFacets(projectId, d.topics, d.description, d.repo, slugs);
 
     results.push({ repo: entry.repo, status: "indexed" });
   }

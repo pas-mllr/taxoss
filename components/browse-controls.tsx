@@ -18,10 +18,12 @@ export function BrowseControls({
   categories,
   jurisdictions,
   subjects,
+  processes,
 }: {
   categories: { slug: string; name: string }[];
   jurisdictions: { slug: string; name: string }[];
   subjects: { slug: string; name: string }[];
+  processes: { slug: string; name: string }[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -97,14 +99,27 @@ export function BrowseControls({
       </select>
       <select
         className="select"
-        aria-label="Filter by tax subject"
+        aria-label="Filter by tax domain"
         value={params.get("subject") ?? ""}
         onChange={(e) => update({ subject: e.target.value })}
       >
-        <option value="">All tax subjects</option>
+        <option value="">All tax domains</option>
         {subjects.map((s) => (
           <option key={s.slug} value={s.slug}>
             {s.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="select"
+        aria-label="Filter by process"
+        value={params.get("process") ?? ""}
+        onChange={(e) => update({ process: e.target.value })}
+      >
+        <option value="">All processes</option>
+        {processes.map((process) => (
+          <option key={process.slug} value={process.slug}>
+            {process.name}
           </option>
         ))}
       </select>

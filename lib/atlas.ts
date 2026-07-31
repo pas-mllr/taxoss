@@ -50,7 +50,7 @@ export type AtlasPattern = { title: string; body: string };
 export const ATLAS_PATTERNS: AtlasPattern[] = [
   {
     title: "Governments now ship open source",
-    body: "The IRS published Direct File — the actual federal filing system. Poland's Ministry of Finance maintains official KSeF tooling on GitHub. France's OpenFisca powers state-run simulators, and New Zealand piloted rules-as-code inside government. For a tax leader this is a procurement-grade signal: authority-published code is a different trust class than a community project, and it's the fastest-growing corner of this index.",
+    body: "The IRS published the Tax Year 2024 Direct File code, now archived as a historical reference. Poland's Ministry of Finance maintains official KSeF tooling on GitHub. France's OpenFisca powers state-run simulators, and New Zealand piloted rules-as-code inside government. Authority publication is strong provenance evidence, but maintenance, security, support, and production fitness still require separate review.",
   },
   {
     title: "The closed-API ceiling",

@@ -3,22 +3,30 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { facets, projectFacets } from "@/lib/db/schema";
 import { autoFacets } from "@/lib/auto-facets";
+import type { FacetKind } from "@/lib/db/seed-facets";
 
 /**
- * Replace a project's facet assignments for one kind ("jurisdiction" or
- * "subject") with the given slugs. Unknown slugs are ignored.
+ * Replace a project's facet assignments for one kind with the given slugs.
+ * Unknown slugs are ignored.
  */
 export async function setFacets(
   projectId: number,
-  kind: "jurisdiction" | "subject",
+  kind: FacetKind,
   slugs: string[],
 ): Promise<number> {
-  const rows = slugs.length
+  let rows = slugs.length
     ? await db
         .select({ id: facets.id })
         .from(facets)
         .where(and(eq(facets.kind, kind), inArray(facets.slug, slugs)))
     : [];
+  if (kind !== "jurisdiction" && rows.length === 0) {
+    rows = await db
+      .select({ id: facets.id })
+      .from(facets)
+      .where(and(eq(facets.kind, kind), eq(facets.slug, "unclassified")))
+      .limit(1);
+  }
   const kindIds = db
     .select({ id: facets.id })
     .from(facets)
@@ -46,8 +54,15 @@ export async function autoAssignFacets(
   topics: string[],
   description: string | null,
   repoName: string,
+  categorySlugs: string[] = [],
 ): Promise<void> {
-  const { jurisdictions, subjects } = autoFacets(topics, description, repoName);
+  const { jurisdictions, subjects, processes } = autoFacets(
+    topics,
+    description,
+    repoName,
+    categorySlugs,
+  );
   if (jurisdictions.length) await setFacets(projectId, "jurisdiction", jurisdictions);
-  if (subjects.length) await setFacets(projectId, "subject", subjects);
+  await setFacets(projectId, "subject", subjects.length ? subjects : ["unclassified"]);
+  await setFacets(projectId, "process", processes.length ? processes : ["unclassified"]);
 }

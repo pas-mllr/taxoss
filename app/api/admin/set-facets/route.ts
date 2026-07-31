@@ -12,10 +12,11 @@ import { detectSource } from "@/lib/index-repo";
 /**
  * Token-gated facet assignment for site admins — the curated counterpart to
  * the provisional auto-tagging that runs at index time. POST
- * { assignments: [{ repo, jurisdictions?, subjects? }] } with
+ * { assignments: [{ repo, jurisdictions?, subjects?, processes? }] } with
  * "Authorization: Bearer $ADMIN_API_TOKEN". Replaces each project's facets
  * of the given kinds wholesale; omitted kinds are left untouched. Unknown
- * facet slugs are ignored, unknown repos reported per row.
+ * facet slugs are ignored, unknown repos reported per row. Empty or unknown
+ * domain/process sets become explicit Unclassified assignments.
  */
 
 const bodySchema = z.object({
@@ -25,6 +26,7 @@ const bodySchema = z.object({
         repo: z.string().min(1),
         jurisdictions: z.array(z.string()).max(4).optional(),
         subjects: z.array(z.string()).max(4).optional(),
+        processes: z.array(z.string()).max(8).optional(),
       }),
     )
     .min(1)
@@ -73,6 +75,7 @@ export async function POST(request: Request) {
     }
     if (a.jurisdictions) await setFacets(projectId, "jurisdiction", a.jurisdictions);
     if (a.subjects) await setFacets(projectId, "subject", a.subjects);
+    if (a.processes) await setFacets(projectId, "process", a.processes);
     results.push({ repo: a.repo, status: "set" });
   }
 

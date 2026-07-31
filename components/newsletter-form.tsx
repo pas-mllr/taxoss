@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { captureEvent } from "@/lib/analytics";
 
 type Status = "idle" | "pending" | "done" | "error";
 
@@ -29,7 +28,6 @@ export function NewsletterForm() {
         return;
       }
       setStatus("done");
-      captureEvent("newsletter_subscribed");
     } catch {
       setStatus("error");
       setError("Subscription failed. Try again later.");

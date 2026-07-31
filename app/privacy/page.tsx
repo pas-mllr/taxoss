@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: "How TaxOSS handles analytics, accounts, and newsletter data.",
+  description: "How TaxOSS handles accounts, private workspace, and newsletter data.",
 };
 
 export default function PrivacyPage() {
@@ -20,23 +20,17 @@ export default function PrivacyPage() {
             <Link href="/imprint" className="accent">
               imprint
             </Link>
-            . Browsing the index needs no account and works with the cookie
-            banner declined.
+            . Browsing the index needs no account.
           </p>
         </div>
 
         <div className="stack-8">
           <h3 style={{ fontSize: 15 }}>Analytics</h3>
           <p className="body">
-            We use PostHog (EU cloud, hosted in Frankfurt) to understand how
-            the index is used. If you accept the cookie banner, PostHog sets
-            first-party cookies and may record sessions with all inputs
-            masked. If you decline — or never answer — no analytics cookies
-            are set and nothing is stored on your device; usage is measured
-            through a short-lived, non-reversible server-side hash instead. IP
-            addresses are discarded at ingestion. You can change your mind by
-            clearing this site&apos;s data in your browser, which brings the
-            banner back.
+            We do not use product analytics, advertising trackers, session
+            replay, or analytics cookies. Your browser may store your theme
+            preference and whether you dismissed the newsletter invitation;
+            neither value identifies you or leaves your device.
           </p>
         </div>
 
@@ -47,7 +41,7 @@ export default function PrivacyPage() {
             name, avatar, and — if you connect GitHub for a maintainer claim —
             your public GitHub login. The claim flow reads only your public
             identity and repository permission level; it has no repository
-            scopes. Deleting your account removes this mirror.
+            scopes. Contact us to delete this local account mirror.
           </p>
         </div>
 
@@ -58,6 +52,18 @@ export default function PrivacyPage() {
             your email address there; every issue carries an unsubscribe link,
             and unsubscribing removes you from the list. Your address is used
             for nothing else.
+          </p>
+        </div>
+
+        <div className="stack-8">
+          <h3 style={{ fontSize: 15 }}>Private workspace</h3>
+          <p className="body">
+            Signed-in members can keep one private portfolio containing scope
+            selections, shortlisted projects, decision states, and notes. This
+            data is tied to your account, visible only to you, excluded from
+            search indexing and the public MCP API, and included only when you
+            request your authenticated CSV export. Deleting your local account
+            mirror also deletes its portfolio records.
           </p>
         </div>
 
