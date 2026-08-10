@@ -6,3 +6,11 @@ data
 *.md
 .clerk
 .github
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+coverage
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

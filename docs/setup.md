@@ -55,12 +55,16 @@ keyless mode.
    `curl -X POST https://tax-oss.com/api/admin/claims -H "Authorization: Bearer $ADMIN_API_TOKEN" -H "Content-Type: application/json" -d '{"grants":[{"repo":"owner/name","email":"maintainer@firm.com"}]}'`
    Undo with `curl -X DELETE .../api/admin/claims -d '{"repos":["owner/name"]}'`.
 
-## Verification status (last local QA)
+## Verification
 
-- Build, typecheck, all routes: passing.
-- Browsing, directory filters/search/sort, detail pages with live GitHub stats +
-  rendered READMEs: verified in headless browser against the real GitHub API.
-- Sign-up/star/review/comment/claim: implemented and gated server-side; the
-  interactive Clerk flows need a claimed instance + GitHub connection to be
-  exercised end-to-end (headless keyless sign-up is blocked by Clerk's bot
-  protection). No mocked flows were used — verify in a real browser after step 2.
+Run the automated checks before opening a pull request:
+
+```bash
+pnpm lint
+pnpm test
+pnpm build
+```
+
+The interactive Clerk sign-up, star, review, comment, and claim flows require a
+claimed Clerk instance with a GitHub connection. Verify them in a real browser
+after completing step 2; Clerk's bot protection blocks headless keyless sign-up.

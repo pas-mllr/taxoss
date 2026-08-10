@@ -10,14 +10,18 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Azure resources — created once via scripts/azure-provision.sh.
+  # Azure resources — created once via deployment/azure-provision.sh.
   RESOURCE_GROUP: taxoss-rg
   ACR_NAME: taxossacr
   CONTAINERAPP: taxoss
   IMAGE_REPO: taxoss/app
 
 jobs:
+  quality:
+    uses: ./.github/workflows/ci.yml
+
   deploy:
+    needs: quality
     runs-on: ubuntu-latest
     permissions:
       contents: read

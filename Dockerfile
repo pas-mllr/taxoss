@@ -36,8 +36,8 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 COPY drizzle ./drizzle
-COPY litestream.yml /etc/litestream.yml
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY deployment/litestream.yml /etc/litestream.yml
+COPY deployment/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 8080
 CMD ["docker-entrypoint.sh"]

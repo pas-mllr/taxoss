@@ -29,7 +29,7 @@ submit projects.
 
 ## Running it
 
-See [SETUP.md](./SETUP.md).
+See [docs/setup.md](./docs/setup.md).
 
 ## License
 

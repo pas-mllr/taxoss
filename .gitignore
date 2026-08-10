@@ -44,9 +44,8 @@ next-env.d.ts
 # local database
 data/
 
-# clerk configuration (can include secrets)
-/.clerk/
+# local tool state
 .gstack/
 
-# clerk keyless dev state
+# clerk configuration and keyless dev state (can include secrets)
 .clerk/
